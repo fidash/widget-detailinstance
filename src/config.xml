@@ -15,5 +15,5 @@
     <inputendpoint name="instance_id" type="text" label="Instance ID" description="Receives instance ID and OpenStack service token." friendcode="instance_id"/>
   </wiring>
   <contents src="index.html" useplatformstyle="true"/>
-  <rendering height="8" width="30"/>
+  <rendering height="44" width="8"/>
 </widget>

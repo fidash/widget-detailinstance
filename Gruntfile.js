@@ -147,7 +147,7 @@ module.exports = function(grunt) {
   grunt.registerTask('test', ['concat', 'jasmine:coverage']);
   grunt.registerTask('default',
     ['jshint',
-     /*'test',*/
+     'test',
      'replace:version',
      'package'
     ]);

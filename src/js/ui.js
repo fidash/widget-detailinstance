@@ -11,7 +11,7 @@ var UI = (function () {
 	var refreshButton, deleteButton, borderLayout, emptyLayout;
 
 	var deleteInstanceSuccess, getInstanceDetailsSuccess, receiveInstanceId,
-		onError, checkInstanceDetails, getDisplayableAddresses;
+		onError, checkInstanceDetails, deleteInstance, getDisplayableAddresses;
 
 
 	/*****************************************************************
@@ -58,11 +58,13 @@ var UI = (function () {
 			// Headers
 			var header = document.createElement('h2'),
 				headerInfo = document.createElement('h3'),
+				headerAddresses = document.createElement('h3'),
 				headerStatus = document.createElement('h3'),
 				headerSpecs = document.createElement('h3');
 
 			header.textContent = 'Instance Details';
 			headerInfo.textContent = 'Info';
+			headerAddresses.textContent = 'Addresses';
 			headerStatus.textContent = 'Status';
 			headerSpecs.textContent = 'Specs';
 
@@ -92,42 +94,42 @@ var UI = (function () {
 
 			// Data
 			var infoList    = document.createElement('ul'),
+				addressesList = document.createElement('ul'),
 				statusList  = document.createElement('ul'),
 				specsList   = document.createElement('ul');
 
 			var power_state = instanceData['OS-EXT-STS:power_state'] ? states[instanceData["OS-EXT-STS:power_state"]] : '';
 			var addresses = instanceData.addresses ? getDisplayableAddresses(instanceData.addresses) : '';
+			var displayableTask = (instanceData["OS-EXT-STS:task_state"] && instanceData["OS-EXT-STS:task_state"] !== '') ? instanceData["OS-EXT-STS:task_state"] : "None";
 
 			infoList.innerHTML = '<li><strong>' + fields[0] + ':</strong> ' + instanceData.id + '</li>' +
 								 '<li><strong>' + fields[1] + ':</strong> ' + instanceData.name + '</li>' +
-								 '<li><strong>' + fields[2] + ':</strong> ' + instanceData.status + '</li>';
+								 '<li><strong>' + fields[4] + ':</strong> ' + instanceData.user_id + '</li>';
 
-			statusList.innerHTML = '<li><strong>' + fields[3] + ':</strong> ' + instanceData.status + '</li>' +
-								   '<li><strong>' + fields[4] + ':</strong> ' + '' + '</li>' +
-								   '<li><strong>' + fields[4] + ':</strong> ' + instanceData.checksum + '</li>' +
-								   '<li><strong>' + fields[5] + ':</strong> ' + instanceData.created_at + '</li>' +
-								   '<li><strong>' + fields[6] + ':</strong> ' + instanceData.updated_at + '</li>';
+			addressesList.innerHTML = '<li><strong>' + fields[3] + ':</strong> ' + addresses + '</li>';
 
-			specsList.innerHTML = '<li><strong>' + fields[7] + ':</strong> ' + instanceData.size + '</li>' +
-								  '<li><strong>' + fields[8] + ':</strong> ' + instanceData.container_format + '</li>' +
-								  '<li><strong>' + fields[9] + ':</strong> ' + instanceData.disk_format + '</li>';
+			statusList.innerHTML = '<li><strong>' + fields[2] + ':</strong> ' + instanceData.status + '</li>' +
+								   '<li><strong>' + fields[10] + ':</strong> ' + instanceData["OS-DCF:diskConfig"] + '</li>' +
+								   '<li><strong>' + fields[11] + ':</strong> ' + instanceData["OS-EXT-STS:vm_state"] + '</li>' +
+								   '<li><strong>' + fields[12] + ':</strong> ' + power_state + '</li>' +
+								   '<li><strong>' + fields[13] + ':</strong> ' + displayableTask + '</li>';
+
+			specsList.innerHTML = '<li><strong>' + fields[5] + ':</strong> ' + instanceData.created + '</li>' +
+								  '<li><strong>' + fields[6] + ':</strong> ' + instanceData.updated + '</li>' +
+								  '<li><strong>' + fields[7] + ':</strong> ' + instanceData.image.id + '</li>' +
+								  '<li><strong>' + fields[8] + ':</strong> ' + instanceData.key_name + '</li>' +
+								  '<li><strong>' + fields[9] + ':</strong> ' + instanceData.flavor.id + '</li>';
 
 
 			// Buttons
-			var deleteButtonClass = instanceData.protected ? 'btn-danger pull-right disabled' : 'btn-danger pull-right';
-			
 			refreshButton = new StyledElements.StyledButton({text:'Refresh', 'class': 'pull-right clear'});
-			deleteButton = new StyledElements.StyledButton({text:'Delete', 'class': deleteButtonClass});
-			
-
 			refreshButton.addEventListener('click', this.refresh.bind(this), false);
-			deleteButton.addEventListener('click', this.deleteInstance.bind(this), false);
 
 
 			// Header and footer
 			borderLayout.getNorthContainer().appendChild(header);
 			borderLayout.getSouthContainer().appendChild(refreshButton);
-			borderLayout.getSouthContainer().appendChild(deleteButton);
+			//borderLayout.getSouthContainer().appendChild(deleteButton);
 
 
 			// Info {id, name}
@@ -136,13 +138,18 @@ var UI = (function () {
 			centerContainer.appendChild(infoList);
 
 
-			// Status {status, visibility, checksum, created, updated}
+			// Addresses {addresses}
+			centerContainer.appendChild(headerAddresses);
+			centerContainer.appendChild(new StyledElements.Separator());
+			centerContainer.appendChild(addressesList);
+
+			// Status {status, disk_config, vm_state, power_state, task}
 			centerContainer.appendChild(headerStatus);
 			centerContainer.appendChild(new StyledElements.Separator());
 			centerContainer.appendChild(statusList);
 
 
-			// Specs {size, container_format, disk_format}
+			// Specs {created, updated, image, key_pair, flavor}
 			centerContainer.appendChild(headerSpecs);
 			centerContainer.appendChild(new StyledElements.Separator());
 			centerContainer.appendChild(specsList);
@@ -163,9 +170,12 @@ var UI = (function () {
 			var background = document.createElement('div');
 			var message = document.createElement('div');
 
-			background.className = 'empty-layout';
-			message.clasName = 'info';
+			background.className = 'stripes angled-135';
 			background.appendChild(message);
+
+			message.className = 'info';
+			message.textContent = 'No instance data received yet.';
+
 			borderLayout.getCenterContainer().appendChild(background);
 						
 			// Insert and repaint
@@ -180,7 +190,7 @@ var UI = (function () {
 				return;
 			}
 
-			this.instanceDetails.deleteInstance(deleteInstanceSuccess.bind(this), onError);
+			this.instanceDetails.deleteInstance(deleteInstanceSuccess.bind(this), onError.bind(this));
 		},
 
 		refresh: function refresh () {
@@ -190,7 +200,30 @@ var UI = (function () {
 				return;
 			}
 
-			this.instanceDetails.getInstanceDetails(getInstanceDetailsSuccess.bind(this), onError);
+			this.instanceDetails.getInstanceDetails(getInstanceDetailsSuccess.bind(this), onError.bind(this));
+		},
+
+		buildErrorView: function buildErrorView (error) {
+			
+			// Delete previous
+			borderLayout.getNorthContainer().clear();
+			borderLayout.getCenterContainer().clear();
+			borderLayout.getSouthContainer().clear();
+
+			// Build
+			var background = document.createElement('div');
+			var message = document.createElement('div');
+
+			background.className = 'stripes angled-135';
+			background.appendChild(message);
+
+			message.className = 'error';
+			message.textContent = 'Error: Server returned the following error: ' + JSON.stringify(error.message);
+
+			borderLayout.getCenterContainer().appendChild(background);
+						
+			// Insert and repaint
+			borderLayout.repaint();
 		}
 	};
 
@@ -220,7 +253,7 @@ var UI = (function () {
         displayableAddresses = privateAddresses[0].addr;
 
         for (var i=1; i<privateAddresses.length; i++) {
-            displayableAddresses += '<br/>' + privateAddresses[i].addr;
+            displayableAddresses += ', ' + privateAddresses[i].addr;
         }
 
         return displayableAddresses;
@@ -233,8 +266,8 @@ var UI = (function () {
 	*****************************************************************/
 
 	getInstanceDetailsSuccess = function getInstanceDetailsSuccess (instanceData) {
-		instanceData = JSON.parse(instanceData);
-		this.buildDetailView(instanceData);
+		//instanceData = JSON.parse(instanceData);
+		this.buildDetailView(instanceData.server);
 	};
 
 	deleteInstanceSuccess = function deleteInstanceSuccess (response) {
@@ -242,6 +275,7 @@ var UI = (function () {
 	};
 
 	onError = function onError (error) {
+		this.buildErrorView(error);
 		MashupPlatform.widget.log('Error: ' + JSON.stringify(error));
 	};
 
@@ -253,7 +287,7 @@ var UI = (function () {
 		JSTACK.Keystone.params.currentstate = 2;
 
 		this.instanceDetails = new InstanceDetails(wiringData.id);
-		this.instanceDetails.getInstanceDetails(getInstanceDetailsSuccess.bind(this), onError);
+		this.instanceDetails.getInstanceDetails(getInstanceDetailsSuccess.bind(this), onError.bind(this));
 	};
 
 

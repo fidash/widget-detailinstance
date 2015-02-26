@@ -1,20 +1,20 @@
-/* global ImageDetails UI receiveImageId */
+/* global InstanceDetails UI receiveInstanceId */
 
-describe('Test image details', function () {
+describe('Test instance details', function () {
 	"use strict";
 
 	var respServices = null;
-	var respImageList = null;
-	var calledGetImageDetailsSuccess, calledGetImageDetailsError;
+	var respInstanceList = null;
+	var calledGetInstanceDetailsSuccess, calledGetInstanceDetailsError;
 	var ui;
 
 
 	beforeEach(function () {
 		jasmine.getJSONFixtures().fixturesPath = 'src/test/fixtures/json';
 		respServices = getJSONFixture('respServices.json');
-		respImageList = getJSONFixture('respImageList.json');
-		calledGetImageDetailsSuccess = false;
-		calledGetImageDetailsError = false;
+		respInstanceList = getJSONFixture('respInstanceList.json');
+		calledGetInstanceDetailsSuccess = false;
+		calledGetInstanceDetailsError = false;
 		ui = new UI();
 	});
 
@@ -22,129 +22,119 @@ describe('Test image details', function () {
 		ui.buildDefaultView();
 	});
 
-	function receiveWiringEvent (ui, imageId) {
+	function receiveWiringEvent (ui, instanceId) {
 		
 		var access = respServices.access;
 		var wiringData = {
-			'id': imageId,
+			'id': instanceId,
 			'access': access
 		};
 
 		wiringData = JSON.stringify(wiringData);
-		var receiveImageId = MashupPlatform.wiring.registerCallback.calls.mostRecent().args[1];		
+		var receiveInstanceId = MashupPlatform.wiring.registerCallback.calls.mostRecent().args[1];		
 
-		receiveImageId.call(ui, wiringData);
+		receiveInstanceId.call(ui, wiringData);
 	}
 
-	function callGetImageDetailsCallback (imageDetails) {
+	function callGetInstanceDetailsCallback (instanceDetails) {
 
 		var callback;
 
-		imageDetails.getImageDetails(function () {
-			calledGetImageDetailsSuccess = true;
+		instanceDetails.getInstanceDetails(function () {
+			calledGetInstanceDetailsSuccess = true;
 		},
 		function () {
-			calledGetImageDetailsError = true;
+			calledGetInstanceDetailsError = true;
 		});
 
-		callback = JSTACK.Nova.getimagelist.calls.mostRecent().args[1];
-		callback(respImageList);
+		callback = JSTACK.Nova.getserverdetail.calls.mostRecent().args[1];
+		callback(respInstanceList);
 	}
 
-	it('should call JSTACK.Nova.getimagelist when receives a wiring input event', function () {
+	it('should call JSTACK.Nova.getserverdetail when receives a wiring input event', function () {
 
-		var imageId = 'id';
+		var instanceId = 'id';
 		
-		receiveWiringEvent(ui, imageId);
+		receiveWiringEvent(ui, instanceId);
 
-		expect(JSTACK.Nova.getimagelist).toHaveBeenCalled();
-		expect(ui.imageDetails).toExist();
+		expect(JSTACK.Nova.getserverdetail).toHaveBeenCalled();
+		expect(ui.instanceDetails).toExist();
 	});
 
-	it('should call JSTACK.Nova.deleteimage', function () {
+	it('should call JSTACK.Nova.deleteserver', function () {
 
-		var imageId = 'id';
+		var instanceId = 'id';
 
-		receiveWiringEvent(ui, imageId);
-		ui.deleteImage();
+		receiveWiringEvent(ui, instanceId);
+		ui.deleteInstance();
 
-		expect(JSTACK.Nova.deleteimage).toHaveBeenCalled();
-		expect(ui.imageDetails).toExist();
+		expect(JSTACK.Nova.deleteserver).toHaveBeenCalled();
+		expect(ui.instanceDetails).toExist();
 	});
 
-	it('should call buildDefaultView after successfully deleting an image', function () {
+	it('should call buildDefaultView after successfully deleting an instance', function () {
 
 		var buildDefaultViewSpy = spyOn(ui, 'buildDefaultView');
-		var imageId = 'id';
+		var instanceId = 'id';
 		var successCallback;
 
-		receiveWiringEvent(ui, imageId);
-		ui.deleteImage();
-		successCallback = JSTACK.Nova.deleteimage.calls.mostRecent().args[1];
+		receiveWiringEvent(ui, instanceId);
+		ui.deleteInstance();
+		successCallback = JSTACK.Nova.deleteserver.calls.mostRecent().args[1];
 		successCallback();
 
 		expect(buildDefaultViewSpy).toHaveBeenCalled();
 	});
 
-	it('should call JSTACK.Nova.getimagelist error callback', function () {
+	it('should call JSTACK.Nova.getserverdetail success callback', function () {
 
-		var imageId = 'id';
-		
-		receiveWiringEvent(ui, imageId);
-		callGetImageDetailsCallback(ui.imageDetails);
-		expect(calledGetImageDetailsError).toBe(true);
+		var instanceId = 'f3c6536a-4604-47d7-96b7-daf7ff1455ca';
 
+		receiveWiringEvent(ui, instanceId);
+		callGetInstanceDetailsCallback(ui.instanceDetails);
+		expect(calledGetInstanceDetailsSuccess).toBe(true);
 	});
 
-	it('should call JSTACK.Nova.getimagelist success callback', function () {
-
-		var imageId = 'f3c6536a-4604-47d7-96b7-daf7ff1455ca';
-
-		receiveWiringEvent(ui, imageId);
-		callGetImageDetailsCallback(ui.imageDetails);
-		expect(calledGetImageDetailsSuccess).toBe(true);
-	});
-
-	it('should call buildDetailView after successfully getting an image\'s details', function () {
+	it('should call buildDetailView after successfully getting an instance\'s details', function () {
 
 		var buildDetailViewSpy = spyOn(ui, 'buildDetailView');
-		var imageId = 'f3c6536a-4604-47d7-96b7-daf7ff1455ca';
+		var instanceId = 'f3c6536a-4604-47d7-96b7-daf7ff1455ca';
 		var successCallback;
 
-		receiveWiringEvent(ui, imageId);
-		successCallback = JSTACK.Nova.getimagelist.calls.mostRecent().args[1];
-		successCallback(respImageList);
+		receiveWiringEvent(ui, instanceId);
+		successCallback = JSTACK.Nova.getserverdetail.calls.mostRecent().args[1];
+		successCallback(respInstanceList);
 
 		expect(buildDetailViewSpy).toHaveBeenCalled();
 	});
 
-	it('should call the error function when refresh or delete are called without an image', function () {
+	it('should call the error function when refresh or delete are called without an instance', function () {
 
 		ui.refresh();
-		ui.deleteImage();
+		ui.deleteInstance();
 
 		expect(MashupPlatform.widget.log.calls.count()).toBe(2);
-		expect(MashupPlatform.widget.log.calls.argsFor(0)).toEqual(['Error: No image received yet.']);
-		expect(MashupPlatform.widget.log.calls.argsFor(1)).toEqual(['Error: No image received yet.']);
+		expect(MashupPlatform.widget.log.calls.argsFor(0)).toEqual(['Error: No instance received yet.']);
+		expect(MashupPlatform.widget.log.calls.argsFor(1)).toEqual(['Error: No instance received yet.']);
 	});
 
-	it('should call JSTACK.Nova.getimagelist when refreshing', function () {
+	it('should call JSTACK.Nova.getserverdetail when refreshing', function () {
 		
-		var imageId = 'f3c6536a-4604-47d7-96b7-daf7ff1455ca';
+		var instanceId = 'f3c6536a-4604-47d7-96b7-daf7ff1455ca';
 
-		receiveWiringEvent(ui, imageId);
+		receiveWiringEvent(ui, instanceId);
 		ui.refresh();
 
-		expect(JSTACK.Nova.getimagelist).toHaveBeenCalled();
+		expect(JSTACK.Nova.getserverdetail).toHaveBeenCalled();
 	});
 
-	it('should call the error function when the getImageDetails or deleteImage calls fail', function () {
+	it('should call the error function when the getInstanceDetails or deleteInstance calls fail', function () {
 
-		var imageId = 'f3c6536a-4604-47d7-96b7-daf7ff1455ca';
+		var instanceId = 'f3c6536a-4604-47d7-96b7-daf7ff1455ca';
 		var errorCallback;
 
-		receiveWiringEvent(ui, imageId);
-		errorCallback = JSTACK.Nova.getimagelist.calls.mostRecent().args[2];
+		receiveWiringEvent(ui, instanceId);
+		errorCallback = JSTACK.Nova.getserverdetail.calls.mostRecent().args[2];
 		errorCallback('Call error function');
 
 		expect(MashupPlatform.widget.log).toHaveBeenCalledWith('Error: "Call error function"');
@@ -152,72 +142,34 @@ describe('Test image details', function () {
 
 	it('should correctly build the detail view', function () {
 
-		var imageData = respImageList.images[0];
+		var states = [
+            "SHUT DOWN",
+            "RUNNING",
+            "SHUTOFF",
+        ];
+		var instanceData = respInstanceList.servers[0];
 		var z = 0;
+		var addr = instanceData.addresses["private"][0].addr + ', ' + instanceData.addresses["private"][1].addr;
+		var power_state = states[instanceData["OS-EXT-STS:power_state"]];
+		var displayableTask = (instanceData["OS-EXT-STS:task_state"] && instanceData["OS-EXT-STS:task_state"] !== '') ? instanceData["OS-EXT-STS:task_state"] : "None";
 		var fields = [
-                'ID: ' + imageData.id,
-                'Name: ' + imageData.name,
-                'Status: ' + imageData.status,
-                'Visibility: Public',
-                'Checksum: ' + imageData.checksum,
-                'Created: ' + imageData.created_at,
-                'Updated: ' + imageData.updated_at,
-                'Size: ' + imageData.size,
-                'Container format: ' + imageData.container_format,
-                'Disk format: ' + imageData.disk_format
+                'ID: ' + instanceData.id,
+                'Name: ' + instanceData.name,
+                'Owner: ' + instanceData.user_id,
+                'Addresses: ' + addr,
+                'Status: ' + instanceData.status,
+                'Disk Config: ' + instanceData["OS-DCF:diskConfig"],
+                'VM State: ' + instanceData["OS-EXT-STS:vm_state"],
+                'Power State: ' + power_state,
+                'Task: ' + displayableTask,
+                'Created: ' + instanceData.created,
+                'Updated: ' + instanceData.updated,
+                'Image: ' + instanceData.image.id,
+                'Key Pair: ' + instanceData.key_name,
+                'Flavor: ' + instanceData.flavor.id
                 ];
 		
-		ui.buildDetailView(imageData);
-
-		$('.center_container > ul > li').each(function () {
-			expect($(this)).toContainText(fields[z]);
-			z += 1;
-		});
-	});
-
-	it('should build the detailed view with a private image', function () {
-
-		var imageData = respImageList.images[1];
-		var z = 0;
-		var fields = [
-                'ID: ' + imageData.id,
-                'Name: ' + imageData.name,
-                'Status: ' + imageData.status,
-                'Visibility: Private',
-                'Checksum: ' + imageData.checksum,
-                'Created: ' + imageData.created_at,
-                'Updated: ' + imageData.updated_at,
-                'Size: ' + imageData.size,
-                'Container format: ' + imageData.container_format,
-                'Disk format: ' + imageData.disk_format
-                ];
-		
-		ui.buildDetailView(imageData);
-
-		$('.center_container > ul > li').each(function () {
-			expect($(this)).toContainText(fields[z]);
-			z += 1;
-		});
-	});
-	
-	it('should build build the detailed view with a protected image', function () {
-
-		var imageData = respImageList.images[2];
-		var z = 0;
-		var fields = [
-                'ID: ' + imageData.id,
-                'Name: ' + imageData.name,
-                'Status: ' + imageData.status,
-                'Visibility: Public',
-                'Checksum: ' + imageData.checksum,
-                'Created: ' + imageData.created_at,
-                'Updated: ' + imageData.updated_at,
-                'Size: ' + imageData.size,
-                'Container format: ' + imageData.container_format,
-                'Disk format: ' + imageData.disk_format
-                ];
-
-        ui.buildDetailView(imageData);
+		ui.buildDetailView(instanceData);
 
 		$('.center_container > ul > li').each(function () {
 			expect($(this)).toContainText(fields[z]);
@@ -231,11 +183,11 @@ describe('Test image details', function () {
 		var newValues = {
 			'heightInPixels': 400
 		};
-		var imageData = respImageList.images[2];
+		var instanceData = respInstanceList.servers[0];
 		var totalHeight;
 
 		$('.center_container').css('height', '400px');
-		ui.buildDetailView(imageData);
+		ui.buildDetailView(instanceData);
 		callback(newValues);
 		totalHeight = parseInt($('.center_container').css('height')) + parseInt($('.north_container').css('height')) + parseInt($('.south_container').css('height'));
 		
@@ -248,10 +200,10 @@ describe('Test image details', function () {
 		var newValues = {
 			'widthInPixels': 768
 		};
-		var imageData = respImageList.images[2];
+		var instanceData = respInstanceList.servers[0];
 		var totalWidth;
 
-		ui.buildDetailView(imageData);
+		ui.buildDetailView(instanceData);
 		callback(newValues);
 		totalWidth = parseInt($('.center_container').css('width')) + parseInt($('.east_container').css('width')) + parseInt($('.west_container').css('width'));
 		
@@ -262,13 +214,13 @@ describe('Test image details', function () {
 
 		var callback = MashupPlatform.widget.context.registerCallback.calls.mostRecent().args[0];
 		var newValues = {};
-		var imageData = respImageList.images[2];
+		var instanceData = respInstanceList.servers[0];
 		var totalWidthPrev, totalWidth, totalHeightPrev, totalHeight;
 
 		totalHeightPrev = parseInt($('.center_container').css('height')) + parseInt($('.north_container').css('height')) + parseInt($('.south_container').css('height'));
 		totalWidthPrev = parseInt($('.center_container').css('width')) + parseInt($('.east_container').css('width')) + parseInt($('.west_container').css('width'));
 
-		ui.buildDetailView(imageData);
+		ui.buildDetailView(instanceData);
 		callback(newValues);
 
 		totalHeight = parseInt($('.center_container').css('height')) + parseInt($('.north_container').css('height')) + parseInt($('.south_container').css('height'));
@@ -276,6 +228,24 @@ describe('Test image details', function () {
 		
 		expect(totalWidthPrev).toEqual(totalWidth);
 		expect(totalHeightPrev).toEqual(totalHeight);
+	});
+
+	it('should build the error view on failure', function () {
+
+		var errorCallback;
+		var instanceId = 'id';
+		var buildErrorViewSpy = spyOn(ui, 'buildErrorView').and.callThrough();
+		var message = {
+			'message': '500 Error',
+			'body': 'Stack trace'
+		};
+		
+		receiveWiringEvent(ui, instanceId);
+		errorCallback = JSTACK.Nova.getserverdetail.calls.mostRecent().args[2];
+		errorCallback(message);
+
+		expect(buildErrorViewSpy).toHaveBeenCalled();
+		expect($('.error')).toContainText('Error: Server returned the following error: "500 Error"');
 	});
 
 });

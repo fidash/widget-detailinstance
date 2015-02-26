@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<widget xmlns="http://wirecloud.conwet.fi.upm.es/ns/macdescription/1" vendor="CoNWeT" name="openstack-instancedetails-widget" version="0.0.1">
+  <details>
+    <title>OpenStack Instance Details Widget</title>
+    <email>bgrana@conwet.com</email>
+    <image>images/catalogue.png</image>
+    <smartphoneimage>images/catalogueSmartphone.png</smartphoneimage>
+    <description>Shows details of the given openstack instance</description>
+    <authors>bgrana</authors>
+  </details>
+  <requirements>
+    <feature name="StyledElements" />
+  </requirements>
+  <wiring>
+    <inputendpoint name="instance_id" type="text" label="Instance ID" description="Receives instance ID and OpenStack service token." friendcode="instance_id"/>
+  </wiring>
+  <contents src="index.html" useplatformstyle="true"/>
+  <rendering height="8" width="30"/>
+</widget>

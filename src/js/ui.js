@@ -8,13 +8,15 @@ var UI = (function () {
 	****************************COSNTANTS*****************************
 	*****************************************************************/
 
-	var RED = 'rgb(211, 1, 1)';
+	var RED = 'rgb(217, 83, 79)';
 	var GREEN = 'green';
 	var AMBAR = 'rgb(239, 163, 0)';
 	var GRAY = 'gray';
 
 
 	var statuses = {
+
+		// GREEN
 		'ACTIVE': {
 			'class': 'glyphicon glyphicon-ok fa-2x fa-inverse',
 			'color': GREEN
@@ -28,7 +30,7 @@ var UI = (function () {
 			'color': GREEN
 		},
 
-
+		// AMBAR
 		'HARD_REBOOT': {
 			'class': 'fa fa-repeat fa-spin fa-2x fa-inverse',
 			'color': AMBAR
@@ -74,13 +76,13 @@ var UI = (function () {
 			'color': AMBAR
 		},
 
-
+		// GRAY
 		'UNKNOWN': {
 			'class': 'fa fa-question fa-2x fa-inverse',
 			'color': GRAY
 		},
 
-
+		// RED
 		'DELETED': {
 			'class': 'fa fa-trash fa-2x fa-inverse',
 			'color': RED
@@ -115,14 +117,10 @@ var UI = (function () {
 	****************************VARIABLES*****************************
 	*****************************************************************/
 
-	var deleteInstanceSuccess, getInstanceDetailsSuccess, receiveInstanceId,
-		onError, checkInstanceDetails, deleteInstance, getDisplayableAddresses,
-		rebootInstanceSuccess, refreshSuccess;
+	var getInstanceDetailsSuccess, receiveInstanceId, onError, initEvents,
+		checkInstanceDetails, getDisplayableAddresses, refreshSuccess;
 
-	var delay = 10000,
-		prevRefresh = false,
-		error = false,
-		deleting = false;
+	var delay, prevRefresh, error, deleting;
 
 
 	/*****************************************************************
@@ -131,17 +129,12 @@ var UI = (function () {
 
 	function UI () {
 
-		// Register callback for input endpoint
-		MashupPlatform.wiring.registerCallback('instance_id', receiveInstanceId.bind(this));
+		delay = 10000;
+		prevRefresh = false;
+		error = false;
+		deleting = false;
 
-
-		MashupPlatform.widget.context.registerCallback(function (newValues) {
-			if ("heightInPixels" in newValues || "widthInPixels" in newValues) {
-				$('body').attr('height', newValues.heightInPixels);
-				$('body').attr('width', newValues.widthInPixels);
-			}
-		});
-
+		initEvents.call(this);
 		this.buildDefaultView();
 	}
 
@@ -152,41 +145,15 @@ var UI = (function () {
 
 	UI.prototype = {
 
-		init: function init () {
-
-			// Init click events
-			$('#refresh-button').click(function () {
-				$('#refresh-button > i').addClass('fa-spin');
-				this.refresh.call(this);
-			}.bind(this));
-			$('#instance-reboot').click(function () {
-				this.rebootInstance.call(this);
-			}.bind(this));
-			$('#instance-terminate').click(function () {
-				this.deleteInstance.call(this);
-			}.bind(this));
-			$('#instance-image > span').click(function () {
-
-				var id = $(this).text();
-				var data = {
-					id: id,
-					access: JSTACK.Keystone.params.access
-				};
-
-				MashupPlatform.wiring.pushEvent('image_id', JSON.stringify(data));
-			});			
-
-		},
-
 		buildDetailView: function buildDetailView (instanceData) {
 
 			var addresses = instanceData.addresses ? getDisplayableAddresses(instanceData.addresses) : '';
-			var power_state = instanceData['OS-EXT-STS:power_state'] ? power_states[instanceData["OS-EXT-STS:power_state"].toString()] : '';
-			var displayableTask = (instanceData["OS-EXT-STS:task_state"] && instanceData["OS-EXT-STS:task_state"] !== '') ? instanceData["OS-EXT-STS:task_state"] + '...' : "None";
-			var statusTooltip = 'Status: ' + instanceData.status + ', \x0A' + 'Power State: ' + power_state + ', \x0A' + 'VM State: ' + instanceData["OS-EXT-STS:vm_state"];
+			var power_state = (instanceData['OS-EXT-STS:power_state'] && instanceData['OS-EXT-STS:power_state'] !== "") ? power_states[instanceData["OS-EXT-STS:power_state"].toString()] : '';
+			var displayableTask = (instanceData["OS-EXT-STS:task_state"] && instanceData["OS-EXT-STS:task_state"] !== "") ? instanceData["OS-EXT-STS:task_state"] + '...' : "None";
+			var statusTooltip = 'Status: ' + instanceData.status + ', ' + 'Power State: ' + power_state + ', ' + 'VM State: ' + instanceData["OS-EXT-STS:vm_state"];
 
 			// Adjust refresh delay
-			delay = (instanceData["OS-EXT-STS:task_state"] !== null || instanceData["OS-EXT-STS:task_state"] !== '') ? 2000 : 10000;
+			delay = (instanceData["OS-EXT-STS:task_state"] !== null && instanceData["OS-EXT-STS:task_state"] !== '') ? 2000 : 10000;
 
 			// Hide other views
 			$('#error-view').addClass('hide');
@@ -248,7 +215,7 @@ var UI = (function () {
 				return;
 			}
 
-			this.instanceDetails.deleteInstance(deleteInstanceSuccess.bind(this), onError.bind(this));
+			this.instanceDetails.deleteInstance(null, onError.bind(this));
 		},
 
 		rebootInstance: function rebootInstance () {
@@ -258,7 +225,7 @@ var UI = (function () {
 				return;
 			}
 
-			this.instanceDetails.rebootInstance(rebootInstanceSuccess.bind(this), onError.bind(this));
+			this.instanceDetails.rebootInstance(null, onError.bind(this));
 		},
 
 		refresh: function refresh () {
@@ -272,7 +239,7 @@ var UI = (function () {
 		},
 
 		buildErrorView: function buildErrorView (errorResponse) {
-			
+
 			// Hide other views
 			$('#default-view').addClass('hide');
 			$('#detail-view').addClass('hide');
@@ -323,6 +290,43 @@ var UI = (function () {
 
     };
 
+    initEvents = function initEvents () {
+
+    	// Register callback for input endpoint
+		MashupPlatform.wiring.registerCallback('instance_id', receiveInstanceId.bind(this));
+
+		// Register resize callback
+		MashupPlatform.widget.context.registerCallback(function (newValues) {
+			if ("heightInPixels" in newValues || "widthInPixels" in newValues) {
+				$('body').attr('height', newValues.heightInPixels);
+				$('body').attr('width', newValues.widthInPixels);
+			}
+		});
+
+		// Init click events
+		$('#refresh-button').click(function () {
+			$('#refresh-button > i').addClass('fa-spin');
+			this.refresh.call(this);
+		}.bind(this));
+		$('#instance-reboot').click(function () {
+			this.rebootInstance.call(this);
+		}.bind(this));
+		$('#instance-terminate').click(function () {
+			this.deleteInstance.call(this);
+		}.bind(this));
+		$('#instance-image > span').click(function () {
+
+			var id = $(this).text();
+			var data = {
+				id: id,
+				access: JSTACK.Keystone.params.access
+			};
+
+			MashupPlatform.wiring.pushEvent('image_id', JSON.stringify(data));
+		});			
+
+	};
+
 
 	/*****************************************************************
 	***************************HANDLERS*******************************
@@ -341,14 +345,6 @@ var UI = (function () {
 		else {
 			prevRefresh = false;
 		}
-	};
-
-	deleteInstanceSuccess = function deleteInstanceSuccess (response) {
-		// Nothing
-	};
-
-	rebootInstanceSuccess = function rebootInstanceSuccess (response) {
-		// Nothing
 	};
 
 	refreshSuccess = function refreshSuccess (instanceData) {

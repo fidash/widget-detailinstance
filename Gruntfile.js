@@ -58,6 +58,7 @@ module.exports = function(grunt) {
           helpers: ['src/test/helpers/*.js', 'build/helpers/*.js'],
           vendor: ['node_modules/jquery/dist/jquery.js',
             'node_modules/jasmine-jquery/lib/jasmine-jquery.js',
+            'node_modules/bootstrap/dist/js/bootstrap.min.js',
             'src/test/vendor/*.js']
         }
       },

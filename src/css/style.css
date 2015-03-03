@@ -1,32 +1,41 @@
-.pull-right {
-	float: right;
+h3 {
+	margin-top: 13px;
+	display: inline-block;
+	margin-left: 4px;
+	margin-right: 10px;
+	overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    width: 170px;
+    display: inline-block;
 }
 
-.pull-left {
-	float: left;
+.hide {
+	display: none;
 }
 
-.clear {
-	clear: both;
+.clickable {
+	cursor: pointer;
 }
 
-.empty-layout {
-	background: repeating-linear-gradient(
-		-55deg,
-		#222,
-		#222 10px,
-		#333 10px,
-		#333 20px
-	);
-	position: relative;
-	box-sizing: border-box;
-	width: 100%;
-	height: 100%;
+.header-buttons {
+	margin: 10px 10px;
+}
+
+.btn-default {
+	margin-right: 5px;
+	margin-top: 10px;
+	margin-left: 10px;
+}
+
+.btn-primary {
+	margin-top: 10px;
+	margin-right: 15px;
 }
 
 .stripes {
-	height: 100%;
 	width: 100%;
+	height: 100%;
 	
 	-webkit-background-size: 50px 50px;
 	-moz-background-size: 50px 50px;
@@ -47,13 +56,13 @@
 .info {
 	width: 55%;
 	padding: 50px;
-	top: 39%;
-	left: 17%;
+	top: 50%;
+	left: 50%;
 	line-height: 1.5;
 	font-size: x-large;
 	text-align: center;
-	position: relative;
-	vertical-align: middle;
+	position: absolute;
+	transform: translate(-50%, -50%);
 	color: white;
 	background-color: rgba(0, 0, 0, 0.6);
 }
@@ -61,13 +70,31 @@
 .error {
 	width: 55%;
 	padding: 50px;
-	top: 39%;
-	left: 17%;
+	top: 50%;
+	left: 50%;
 	line-height: 1.5;
 	font-size: x-large;
 	text-align: center;
-	position: relative;
-	vertical-align: middle;
+	position: absolute;
+	transform: translate(-50%, -50%);
 	color: white;
 	background-color: rgba(0, 0, 0, 0.6);
+}
+
+.status {
+	border-radius: 13px;
+	width: 37px;
+	position: fixed;
+	height: 37px;
+	margin-top: 8px;
+	text-align: center;
+}
+
+#instance-status > i {
+	margin-top: 7px;
+	cursor: default;
+}
+
+.fa-2x {
+	font-size: 22px;
 }

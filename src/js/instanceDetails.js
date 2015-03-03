@@ -22,6 +22,10 @@ var InstanceDetails = (function (JSTACK) {
 
 		deleteInstance: function deleteInstance (callback, onError) {
 			JSTACK.Nova.deleteserver(this.instanceId, callback, onError);
+		},
+
+		rebootInstance : function rebootInstance (callback, onError) {
+			JSTACK.Nova.rebootserversoft(this.instanceId, callback, onError);
 		}
 	};
 

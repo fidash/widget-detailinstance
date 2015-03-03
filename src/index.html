@@ -1,10 +1,132 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <link rel="stylesheet" type="text/css" href="lib/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="lib/css/font-awesome.min.css">
 	<link rel="stylesheet" type="text/css" href="css/style.css" />
 </head>
 <body>
 
+    <!-- Detail view -->
+    <div id="detail-view" class="hide">
+
+        <!-- Header -->
+        <div id="detail-header" class="navbar navbar-default">
+            <div style="padding-left: 0;">
+                <i class="fa fa-database fa-2x navbar-brand"></i>
+                <h3 id="instance-name" style="text-overflow:ellipsis;" data-toggle="tooltip" data-placement="bottom"></h3>
+                <span id="instance-status" class="status" data-toggle="tooltip" data-placement="bottom">
+                    <i></i>
+                </span>
+                <div id="instance-actions-dropdown" class="dropdown pull-right">
+                    <button id="dlabel" class="btn btn-primary" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Actions
+                        <span class="caret"></span>
+                    </button>
+
+                    <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+                        <li id="instance-reboot" class="clickable" role="presentation">
+                            <a role="menuitem" tabindex="-1">
+                                <i class="fa fa-repeat"></i> Reboot Instance   
+                            </a>
+                        </li>
+                        <li id="instance-terminate" class="clickable" role="presentation">
+                            <a role="menuitem" tabindex="-1">
+                                <i class="fa fa-trash"></i> Terminate Instance   
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <button id="refresh-button" class="btn btn-default pull-right"><i class="fa fa-refresh"></i></button>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+
+        <!-- Body -->
+        <div id="detail-body">
+
+            <div class="col-xs-6">
+                <div id="instance-owner">
+                    <i class="fa fa-user"></i>
+                    <strong>Owner: </strong>
+                    <!-- Owner -->
+                    <span></span>
+                </div>
+
+                <div id="instance-id">
+                    <i class="fa fa-list-alt"></i>
+                    <strong>ID: </strong>
+                    <!-- ID -->
+                    <span></span>
+                    <!--<i class="fa fa-files-o clickable copy" data-toggle="tooltip" data-placement="top" title="Copy to clipboard"></i>-->
+                </div>
+                
+                <div id="instance-image">
+                    <i class="glyphicon glyphicon-cd"></i>
+                    <strong>Image: </strong>
+                    <!-- Image ID -->
+                    <span class="clickable"></span>
+                    <!--<i class="fa fa-files-o clickable copy" data-toggle="tooltip" data-placement="top" title="Copy to clipboard"></i>-->
+                </div>
+                
+                <div id="instance-key-pair">
+                    <i class="fa fa-key"></i>
+                    <strong>Key pair: </strong>
+                    <!-- Key pair -->
+                    <span></span>
+                </div>
+                <div id="instance-task">
+                    <i class="fa fa-tasks"></i>
+                    <strong>Task: </strong>
+                    <!-- Key pair -->
+                    <span></span>
+                </div>
+            </div>
+
+            <div class="col-xs-6">
+                <div id="instance-addresses">
+                    <i class="fa fa-dot-circle-o"></i>
+                    <strong>Addresses: </strong>
+                    <span></span>
+                    <!-- Addresses -->
+                </div>
+
+                <div id="instance-flavor">
+                    <i class="fa fa-bar-chart"></i>
+                    <strong>Flavor: </strong>
+                    <span></span>
+                    <!-- Flavor -->
+                </div>
+                
+                <div id="instance-created">
+                    <i class="glyphicon glyphicon-calendar"></i>
+                    <strong>Created: </strong>
+                    <span></span>
+                    <!-- Created -->
+                </div>
+                
+                <div id="instance-updated">
+                    <i class="glyphicon glyphicon-calendar"></i>
+                    <strong>Updated: </strong>
+                    <span></span>
+                    <!-- Updated -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Default view -->
+    <div id="default-view" class="info hide">
+        No instance data received yet.
+    </div>
+
+
+    <!-- Error view -->
+    <div id="error-view" class="error hide"></div>
+    
+    <!-- Scripts -->
+    <script src="lib/js/jquery.min.js"></script>
+    <script src="lib/js/bootstrap.min.js"></script>
 	<script src="lib/js/jstack.js"></script>
 	<script src="js/instanceDetails.js"></script>
 	<script src="js/ui.js"></script>

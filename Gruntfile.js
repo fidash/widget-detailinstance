@@ -43,7 +43,9 @@ module.exports = function(grunt) {
       main: {
         files: [
           {expand: true, src: ['**/*', '!test/**'], dest: 'build/wgt', cwd: 'src'},
-          {expand: true, src: ['jquery.min.map', 'jquery.min.js'], dest: 'build/wgt/lib/js', cwd: 'node_modules/jquery/dist'}
+          {expand: true, src: ['jquery.min.map', 'jquery.min.js'], dest: 'build/wgt/lib/js', cwd: 'node_modules/jquery/dist'},
+          {expand: true, src: ['js/bootstrap.min.js', 'css/bootstrap.min.css', 'fonts/*'], dest: 'build/wgt/lib', cwd: 'node_modules/bootstrap/dist'},
+          {expand: true, src: ['css/font-awesome.min.css', 'fonts/*'], dest: 'build/wgt/lib', cwd: 'node_modules/font-awesome'}
         ]
       }
     },

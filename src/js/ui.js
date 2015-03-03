@@ -5,13 +5,124 @@ var UI = (function () {
 
 
 	/*****************************************************************
+	****************************COSNTANTS*****************************
+	*****************************************************************/
+
+	var RED = 'rgb(211, 1, 1)';
+	var GREEN = 'green';
+	var AMBAR = 'rgb(239, 163, 0)';
+	var GRAY = 'gray';
+
+
+	var statuses = {
+		'ACTIVE': {
+			'class': 'glyphicon glyphicon-ok fa-2x fa-inverse',
+			'color': GREEN
+		},
+		'BUILDING': {
+			'class': 'fa fa-spinner fa-pulse fa-2x fa-inverse',
+			'color': GREEN
+		},
+		'PASSWORD': {
+			'class': 'fa fa-terminal fa-2x fa-inverse',
+			'color': GREEN
+		},
+
+
+		'HARD_REBOOT': {
+			'class': 'fa fa-repeat fa-spin fa-2x fa-inverse',
+			'color': AMBAR
+		},
+		'PAUSED': {
+			'class': 'fa fa-pause fa-2x fa-inverse',
+			'color': AMBAR
+		},
+		'REBOOT': {
+			'class': 'fa fa-repeat fa-spin fa-2x fa-inverse',
+			'color': AMBAR
+		},
+		'BUILD': {
+			'class': 'fa fa-repeat fa-spin fa-2x fa-inverse',
+			'color': AMBAR
+		},
+		'RESCUED': {
+			'class': 'fa fa-life-ring fa-2x fa-inverse',
+			'color': AMBAR
+		},
+		'RESIZED': {
+			'class': 'fa fa-arrows-alt fa-2x fa-inverse',
+			'color': AMBAR
+		},
+		'VERIFY_RESIZE': {
+			'class': 'fa fa-arrows-alt fa-2x fa-inverse',
+			'color': AMBAR
+		},
+		'SHUTOFF': {
+			'class': 'fa fa-stop fa-2x fa-inverse',
+			'color': AMBAR
+		},
+		'SOFT_DELETED': {
+			'class': 'fa fa-trash fa-2x fa-inverse',
+			'color': AMBAR
+		},
+		'STOPPED': {
+			'class': 'fa fa-stop fa-2x fa-inverse',
+			'color': AMBAR
+		},
+		'SUSPENDED': {
+			'class': 'fa fa-pause fa-2x fa-inverse',
+			'color': AMBAR
+		},
+
+
+		'UNKNOWN': {
+			'class': 'fa fa-question fa-2x fa-inverse',
+			'color': GRAY
+		},
+
+
+		'DELETED': {
+			'class': 'fa fa-trash fa-2x fa-inverse',
+			'color': RED
+		},
+		'ERROR': {
+			'class': 'fa fa-times fa-2x fa-inverse',
+			'color': RED
+		},
+		'DELETING': {
+			'class': 'fa fa-repeat fa-spin fa-2x fa-inverse',
+			'color': RED
+		},
+		'REVERT_RESIZE': {
+			'class': 'fa fa-arrows-alt fa-2x fa-inverse',
+			'color': RED
+		}
+	};
+
+	var power_states = {
+		'0': 'Power Down',
+		'1': 'On',
+		'4': 'Shut Off'
+	};
+
+	var flavors = {
+		'1': '1 VCPU | 512MB RAM | 0GB Disk',
+		'2': '1 VCPU | 2048MB RAM | 10GB Disk',
+		'3': '2 VCPU | 2MB RAM | 20GB Disk'
+	};
+
+	/*****************************************************************
 	****************************VARIABLES*****************************
 	*****************************************************************/
 
-	var refreshButton, deleteButton, borderLayout, emptyLayout;
-
 	var deleteInstanceSuccess, getInstanceDetailsSuccess, receiveInstanceId,
-		onError, checkInstanceDetails, deleteInstance, getDisplayableAddresses;
+		onError, checkInstanceDetails, deleteInstance, getDisplayableAddresses,
+		rebootInstanceSuccess, refreshSuccess;
+
+	var delay = 10000,
+		prevRefresh = false,
+		error = false,
+		deleting = false;
 
 
 	/*****************************************************************
@@ -20,18 +131,14 @@ var UI = (function () {
 
 	function UI () {
 
-		borderLayout = new StyledElements.BorderLayout();
-		borderLayout.insertInto(document.body);
-		
-
 		// Register callback for input endpoint
 		MashupPlatform.wiring.registerCallback('instance_id', receiveInstanceId.bind(this));
 
 
-		/* Context */
 		MashupPlatform.widget.context.registerCallback(function (newValues) {
 			if ("heightInPixels" in newValues || "widthInPixels" in newValues) {
-				borderLayout.repaint();
+				$('body').attr('height', newValues.heightInPixels);
+				$('body').attr('width', newValues.widthInPixels);
 			}
 		});
 
@@ -44,143 +151,94 @@ var UI = (function () {
 	*****************************************************************/
 
 	UI.prototype = {
+
+		init: function init () {
+
+			// Init click events
+			$('#refresh-button').click(function () {
+				$('#refresh-button > i').addClass('fa-spin');
+				this.refresh.call(this);
+			}.bind(this));
+			$('#instance-reboot').click(function () {
+				this.rebootInstance.call(this);
+			}.bind(this));
+			$('#instance-terminate').click(function () {
+				this.deleteInstance.call(this);
+			}.bind(this));
+			$('#instance-image > span').click(function () {
+
+				var id = $(this).text();
+				var data = {
+					id: id,
+					access: JSTACK.Keystone.params.access
+				};
+
+				MashupPlatform.wiring.pushEvent('image_id', JSON.stringify(data));
+			});			
+
+		},
+
 		buildDetailView: function buildDetailView (instanceData) {
 
-			// Delete previous
-			borderLayout.getNorthContainer().clear();
-			borderLayout.getCenterContainer().clear();
-			borderLayout.getSouthContainer().clear();
+			var addresses = instanceData.addresses ? getDisplayableAddresses(instanceData.addresses) : '';
+			var power_state = instanceData['OS-EXT-STS:power_state'] ? power_states[instanceData["OS-EXT-STS:power_state"].toString()] : '';
+			var displayableTask = (instanceData["OS-EXT-STS:task_state"] && instanceData["OS-EXT-STS:task_state"] !== '') ? instanceData["OS-EXT-STS:task_state"] + '...' : "None";
+			var statusTooltip = 'Status: ' + instanceData.status + ', \x0A' + 'Power State: ' + power_state + ', \x0A' + 'VM State: ' + instanceData["OS-EXT-STS:vm_state"];
 
-			// Border layout
-			var centerContainer = borderLayout.getCenterContainer();
+			// Adjust refresh delay
+			delay = (instanceData["OS-EXT-STS:task_state"] !== null || instanceData["OS-EXT-STS:task_state"] !== '') ? 2000 : 10000;
 
-
-			// Headers
-			var header = document.createElement('h2'),
-				headerInfo = document.createElement('h3'),
-				headerAddresses = document.createElement('h3'),
-				headerStatus = document.createElement('h3'),
-				headerSpecs = document.createElement('h3');
-
-			header.textContent = 'Instance Details';
-			headerInfo.textContent = 'Info';
-			headerAddresses.textContent = 'Addresses';
-			headerStatus.textContent = 'Status';
-			headerSpecs.textContent = 'Specs';
-
+			// Hide other views
+			$('#error-view').addClass('hide');
+			$('#default-view').addClass('hide');
+			$('body').removeClass('stripes angled-135');
 
 			// Fields
-			var states = [
-	            "SHUT DOWN",
-	            "RUNNING",
-	            "SHUTOFF",
-	        ];
-			var fields = [
-				'ID',
-	            'Name',
-	            'Status',
-	            'Addresses',
-	            'Owner',
-	            'Created',
-	            'Updated',
-	            'Image',
-	            'Key Pair',
-	            'Flavor',
-	            'Disk Config',
-	            'VM State',
-	            'Power State',
-	            'Task'];
+			$('#instance-name').text(instanceData.name);
+			$('#instance-name').attr('title', instanceData.name);
+			$('#instance-owner > span').text(instanceData.user_id);
+			$('#instance-id > span').text(instanceData.id);
+			$('#instance-image > span').text(instanceData.image.id);
+			$('#instance-key-pair > span').text(instanceData.key_name);
+			$('#instance-addresses > span').text(addresses);
+			$('#instance-flavor > span').text(flavors[instanceData.flavor.id.toString()]);
+			$('#instance-created > span').text(instanceData.created);
+			$('#instance-updated > span').text(instanceData.updated);
+			$('#instance-task > span').text(displayableTask);
 
+			// Status
+			$('#instance-status > i').removeClass();
+			$('#instance-status > i').addClass(statuses[instanceData.status].class);
+			$('#instance-status').attr('title', statusTooltip).css('background-color', statuses[instanceData.status].color);
 
-			// Data
-			var infoList    = document.createElement('ul'),
-				addressesList = document.createElement('ul'),
-				statusList  = document.createElement('ul'),
-				specsList   = document.createElement('ul');
+			if (displayableTask === 'deleting...') {
+				deleting = true;
+				$('#instance-status > i').addClass(statuses.DELETING.class);
+				$('#instance-status').css('background-color', statuses.DELETING.color);
+			}
 
-			var power_state = instanceData['OS-EXT-STS:power_state'] ? states[instanceData["OS-EXT-STS:power_state"]] : '';
-			var addresses = instanceData.addresses ? getDisplayableAddresses(instanceData.addresses) : '';
-			var displayableTask = (instanceData["OS-EXT-STS:task_state"] && instanceData["OS-EXT-STS:task_state"] !== '') ? instanceData["OS-EXT-STS:task_state"] : "None";
+			$('#instance-status').attr('data-original-title', $('#instance-status').attr('title'));
+			$('#instance-status').attr('title', '');
 
-			infoList.innerHTML = '<li><strong>' + fields[0] + ':</strong> ' + instanceData.id + '</li>' +
-								 '<li><strong>' + fields[1] + ':</strong> ' + instanceData.name + '</li>' +
-								 '<li><strong>' + fields[4] + ':</strong> ' + instanceData.user_id + '</li>';
+			$('#instance-name').attr('data-original-title', $('#instance-name').attr('title'));
+			$('#instance-name').attr('title', '');
 
-			addressesList.innerHTML = '<li><strong>' + fields[3] + ':</strong> ' + addresses + '</li>';
+			// Initialize tooltips
+			$('[data-toggle="tooltip"]').tooltip();
 
-			statusList.innerHTML = '<li><strong>' + fields[2] + ':</strong> ' + instanceData.status + '</li>' +
-								   '<li><strong>' + fields[10] + ':</strong> ' + instanceData["OS-DCF:diskConfig"] + '</li>' +
-								   '<li><strong>' + fields[11] + ':</strong> ' + instanceData["OS-EXT-STS:vm_state"] + '</li>' +
-								   '<li><strong>' + fields[12] + ':</strong> ' + power_state + '</li>' +
-								   '<li><strong>' + fields[13] + ':</strong> ' + displayableTask + '</li>';
-
-			specsList.innerHTML = '<li><strong>' + fields[5] + ':</strong> ' + instanceData.created + '</li>' +
-								  '<li><strong>' + fields[6] + ':</strong> ' + instanceData.updated + '</li>' +
-								  '<li><strong>' + fields[7] + ':</strong> ' + instanceData.image.id + '</li>' +
-								  '<li><strong>' + fields[8] + ':</strong> ' + instanceData.key_name + '</li>' +
-								  '<li><strong>' + fields[9] + ':</strong> ' + instanceData.flavor.id + '</li>';
-
-
-			// Buttons
-			refreshButton = new StyledElements.StyledButton({text:'Refresh', 'class': 'pull-right clear'});
-			refreshButton.addEventListener('click', this.refresh.bind(this), false);
-
-
-			// Header and footer
-			borderLayout.getNorthContainer().appendChild(header);
-			borderLayout.getSouthContainer().appendChild(refreshButton);
-			//borderLayout.getSouthContainer().appendChild(deleteButton);
-
-
-			// Info {id, name}
-			centerContainer.appendChild(headerInfo);
-			centerContainer.appendChild(new StyledElements.Separator());
-			centerContainer.appendChild(infoList);
-
-
-			// Addresses {addresses}
-			centerContainer.appendChild(headerAddresses);
-			centerContainer.appendChild(new StyledElements.Separator());
-			centerContainer.appendChild(addressesList);
-
-			// Status {status, disk_config, vm_state, power_state, task}
-			centerContainer.appendChild(headerStatus);
-			centerContainer.appendChild(new StyledElements.Separator());
-			centerContainer.appendChild(statusList);
-
-
-			// Specs {created, updated, image, key_pair, flavor}
-			centerContainer.appendChild(headerSpecs);
-			centerContainer.appendChild(new StyledElements.Separator());
-			centerContainer.appendChild(specsList);
-
-
-			// Insert and repaint
-			borderLayout.repaint();
+			// Build
+			$('#detail-view').removeClass('hide');
 		},
 
 		buildDefaultView: function buildDefaultView () {
 
-			// Delete previous
-			borderLayout.getNorthContainer().clear();
-			borderLayout.getCenterContainer().clear();
-			borderLayout.getSouthContainer().clear();
+			// Hide other views
+			$('#error-view').addClass('hide');
+			$('#detail-view').addClass('hide');
+			$('body').addClass('stripes angled-135');
 
 			// Build
-			var background = document.createElement('div');
-			var message = document.createElement('div');
-
-			background.className = 'stripes angled-135';
-			background.appendChild(message);
-
-			message.className = 'info';
-			message.textContent = 'No instance data received yet.';
-
-			borderLayout.getCenterContainer().appendChild(background);
-						
-			// Insert and repaint
-			borderLayout.repaint();
-
+			$('#default-view').removeClass('hide');
 		},
 
 		deleteInstance: function deleteInstance () {
@@ -193,6 +251,16 @@ var UI = (function () {
 			this.instanceDetails.deleteInstance(deleteInstanceSuccess.bind(this), onError.bind(this));
 		},
 
+		rebootInstance: function rebootInstance () {
+
+			if (!checkInstanceDetails.call(this)) {
+				MashupPlatform.widget.log('Error: No instance received yet.');
+				return;
+			}
+
+			this.instanceDetails.rebootInstance(rebootInstanceSuccess.bind(this), onError.bind(this));
+		},
+
 		refresh: function refresh () {
 
 			if (!checkInstanceDetails.call(this)) {
@@ -200,30 +268,25 @@ var UI = (function () {
 				return;
 			}
 
-			this.instanceDetails.getInstanceDetails(getInstanceDetailsSuccess.bind(this), onError.bind(this));
+			this.instanceDetails.getInstanceDetails(refreshSuccess.bind(this), onError.bind(this));
 		},
 
-		buildErrorView: function buildErrorView (error) {
+		buildErrorView: function buildErrorView (errorResponse) {
 			
-			// Delete previous
-			borderLayout.getNorthContainer().clear();
-			borderLayout.getCenterContainer().clear();
-			borderLayout.getSouthContainer().clear();
+			// Hide other views
+			$('#default-view').addClass('hide');
+			$('#detail-view').addClass('hide');
+			$('body').addClass('stripes angled-135');
 
 			// Build
-			var background = document.createElement('div');
-			var message = document.createElement('div');
-
-			background.className = 'stripes angled-135';
-			background.appendChild(message);
-
-			message.className = 'error';
-			message.textContent = 'Error: Server returned the following error: ' + JSON.stringify(error.message);
-
-			borderLayout.getCenterContainer().appendChild(background);
-						
-			// Insert and repaint
-			borderLayout.repaint();
+			if (errorResponse.message) {
+				$('#error-view').text(errorResponse.message);
+			}
+			else {
+				$('#error-view').text(errorResponse);
+			}
+			
+			$('#error-view').removeClass('hide');
 		}
 	};
 
@@ -266,17 +329,48 @@ var UI = (function () {
 	*****************************************************************/
 
 	getInstanceDetailsSuccess = function getInstanceDetailsSuccess (instanceData) {
-		//instanceData = JSON.parse(instanceData);
-		this.buildDetailView(instanceData.server);
+		
+		// Keep refreshing if no errors
+		if (!error) {
+			this.buildDetailView(instanceData.server);
+			
+			setTimeout(function () {
+				this.instanceDetails.getInstanceDetails(getInstanceDetailsSuccess.bind(this), onError.bind(this));
+			}.bind(this), delay);
+		}
+		else {
+			prevRefresh = false;
+		}
 	};
 
 	deleteInstanceSuccess = function deleteInstanceSuccess (response) {
-		this.buildDefaultView();
+		// Nothing
 	};
 
-	onError = function onError (error) {
-		this.buildErrorView(error);
-		MashupPlatform.widget.log('Error: ' + JSON.stringify(error));
+	rebootInstanceSuccess = function rebootInstanceSuccess (response) {
+		// Nothing
+	};
+
+	refreshSuccess = function refreshSuccess (instanceData) {
+		// Stop spin animation
+		$('#refresh-button > i').removeClass('fa-spin');
+
+		this.buildDetailView(instanceData.server);
+	};
+
+	onError = function onError (errorResponse) {
+
+		// Build default view if flag deleting is true and error is 404
+		if (errorResponse.message === '404 Error' && deleting) {
+			this.buildDefaultView();
+			deleting = false;
+		}
+		else {
+			error = true;
+			this.buildErrorView(errorResponse);
+			MashupPlatform.widget.log('Error: ' + JSON.stringify(errorResponse));
+		}
+		
 	};
 
 	receiveInstanceId = function receiveInstanceId (wiringData) {
@@ -287,7 +381,16 @@ var UI = (function () {
 		JSTACK.Keystone.params.currentstate = 2;
 
 		this.instanceDetails = new InstanceDetails(wiringData.id);
-		this.instanceDetails.getInstanceDetails(getInstanceDetailsSuccess.bind(this), onError.bind(this));
+		error = false;
+
+		if (!prevRefresh) {
+			prevRefresh = true;
+			this.instanceDetails.getInstanceDetails(getInstanceDetailsSuccess.bind(this), onError.bind(this));	
+		}
+		else {
+			this.instanceDetails.getInstanceDetails(refreshSuccess.bind(this), onError.bind(this));
+		}
+		
 	};
 
 

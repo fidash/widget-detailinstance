@@ -1,3 +1,7 @@
+body {
+	min-width: 360px;
+}
+
 h4 {
 	margin-right: 5px;
 	margin-top: 13px;
@@ -5,7 +9,7 @@ h4 {
 	overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    max-width: 129px;
+    min-width: 156px;
     display: inline-block;
     vertical-align: bottom;
 }
@@ -32,10 +36,9 @@ h4 {
 .btn-default {
 	margin-right: 5px;
 	margin-top: 7px;
-	margin-left: 10px;
 }
 
-.btn-primary {
+.btn-primary, .btn-danger {
 	margin-top: 7px;
 	margin-right: 10px;
 }
@@ -89,8 +92,10 @@ h4 {
 }
 
 .status {
-	padding: 3px;
+	padding: 4px 3px;
 	border-radius: 5px;
+	margin-top: 7px;
+	margin-right: 5px;
 	cursor: default;
 	display: inline-block;
 }

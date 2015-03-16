@@ -305,8 +305,14 @@ var UI = (function () {
 		// Register resize callback
 		MashupPlatform.widget.context.registerCallback(function (newValues) {
 			if ("heightInPixels" in newValues || "widthInPixels" in newValues) {
+				var nonUsableWidth = 204;
+
+				// Set body size
 				$('body').attr('height', newValues.heightInPixels);
 				$('body').attr('width', newValues.widthInPixels);
+
+				// Set instance name max-width
+				$('#instance-name').css('max-width', newValues.widthInPixels - nonUsableWidth);
 			}
 		});
 

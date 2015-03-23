@@ -8,6 +8,9 @@ var UI = (function () {
 	****************************COSNTANTS*****************************
 	*****************************************************************/
 
+	var NONUSABLEWIDTH = 204;
+
+	// Colors
 	var RED = 'rgb(217, 83, 79)';
 	var GREEN = 'green';
 	var AMBAR = 'rgb(239, 163, 0)';
@@ -119,7 +122,8 @@ var UI = (function () {
 	*****************************************************************/
 
 	var getInstanceDetailsSuccess, receiveInstanceId, onError, initEvents,
-		checkInstanceDetails, getDisplayableAddresses, refreshSuccess;
+		checkInstanceDetails, getDisplayableAddresses, refreshSuccess,
+		setNameMaxWidth;
 
 	var delay, prevRefresh, error, deleting;
 
@@ -188,8 +192,12 @@ var UI = (function () {
 			else {
 				$('#instance-status > div > i').addClass(statuses[instanceData.status].class);
 				$('#instance-status').css('background-color', statuses[instanceData.status].color);
-			}			
+			}
 
+			// Set name max-width
+			setNameMaxWidth(NONUSABLEWIDTH);
+
+			// Fix tooltips
 			$('#instance-status').attr('title', statusTooltip);
 			$('#instance-status').attr('data-original-title', $('#instance-status').attr('title'));
 			$('#instance-status').attr('title', '');
@@ -297,6 +305,18 @@ var UI = (function () {
 
     };
 
+    setNameMaxWidth = function setNameMaxWidth (nonUsableWidth) {
+
+		var bodyWidth = $('body').attr('width');
+
+		if (bodyWidth >= 360) {
+			$('#instance-name').css('max-width', bodyWidth - nonUsableWidth);
+		}
+		else {
+			$('#instance-name').css('max-width', 360 - nonUsableWidth);
+		}
+	};
+
     initEvents = function initEvents () {
 
     	// Register callback for input endpoint
@@ -305,14 +325,13 @@ var UI = (function () {
 		// Register resize callback
 		MashupPlatform.widget.context.registerCallback(function (newValues) {
 			if ("heightInPixels" in newValues || "widthInPixels" in newValues) {
-				var nonUsableWidth = 204;
 
 				// Set body size
 				$('body').attr('height', newValues.heightInPixels);
 				$('body').attr('width', newValues.widthInPixels);
 
-				// Set instance name max-width
-				$('#instance-name').css('max-width', newValues.widthInPixels - nonUsableWidth);
+				// Set name max-width
+				setNameMaxWidth(NONUSABLEWIDTH);
 			}
 		});
 

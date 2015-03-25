@@ -337,7 +337,6 @@ var UI = (function () {
 
 		// Init click events
 		$('#refresh-button').click(function () {
-			$('#refresh-button > i').addClass('fa-spin');
 			this.refresh.call(this);
 		}.bind(this));
 		$('#instance-reboot').click(function () {
@@ -380,8 +379,6 @@ var UI = (function () {
 	};
 
 	refreshSuccess = function refreshSuccess (instanceData) {
-		// Stop spin animation
-		$('#refresh-button > i').removeClass('fa-spin');
 
 		this.buildDetailView(instanceData.server);
 	};

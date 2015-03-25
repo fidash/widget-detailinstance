@@ -253,7 +253,7 @@ describe('Test instance details', function () {
 		expect($('#error-view')).toContainText('500 Error');
 	});
 
-	it('should set the automatic refreshing delay to 2 seconds while doing a task', function () {
+	it('should set the automatic refreshing delay to 1 seconds while doing a task', function () {
 
 		var setTimeoutSpy = spyOn(window, 'setTimeout');
 		var instanceId = 'id';
@@ -261,7 +261,7 @@ describe('Test instance details', function () {
 		receiveWiringEvent(instanceId);
 		getInstanceDetailsSuccess(deletingInstance);
 		
-		expect(setTimeoutSpy).toHaveBeenCalledWith(jasmine.any(Function), 2000);
+		expect(setTimeoutSpy).toHaveBeenCalledWith(jasmine.any(Function), 1000);
 
 	});
 
@@ -397,7 +397,7 @@ describe('Test instance details', function () {
 		expect(setTimeoutSpy.calls.count()).toEqual(expectedCountTimeout);
 	});
 
-	it('should call getserverdetail 10 seconds after receiving the last update', function () {
+	it('should call getserverdetail 5 seconds after receiving the last update', function () {
 
         var expectedCount, callback;
         var instanceId = 'id';
@@ -410,7 +410,7 @@ describe('Test instance details', function () {
         callback();
 
         expect(JSTACK.Nova.getserverdetail.calls.count()).toEqual(expectedCount);
-        expect(setTimeoutSpy).toHaveBeenCalledWith(jasmine.any(Function), 10000);
+        expect(setTimeoutSpy).toHaveBeenCalledWith(jasmine.any(Function), 5000);
             
     });
 

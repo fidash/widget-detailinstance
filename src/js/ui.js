@@ -125,7 +125,7 @@ var UI = (function () {
 		checkInstanceDetails, getDisplayableAddresses, refreshSuccess,
 		setNameMaxWidth;
 
-	var delay, prevRefresh, error, deleting;
+	var delay, prevRefresh, error;
 
 
 	/*****************************************************************
@@ -134,10 +134,9 @@ var UI = (function () {
 
 	function UI () {
 
-		delay = 10000;
+		delay = 5000;
 		prevRefresh = false;
 		error = false;
-		deleting = false;
 
 		initEvents.call(this);
 		this.buildDefaultView();
@@ -158,7 +157,7 @@ var UI = (function () {
 			var statusTooltip = 'Status: ' + instanceData.status + ', ' + 'Power State: ' + power_state + ', ' + 'VM State: ' + instanceData["OS-EXT-STS:vm_state"];
 
 			// Adjust refresh delay
-			delay = (instanceData["OS-EXT-STS:task_state"] !== null && instanceData["OS-EXT-STS:task_state"] !== '') ? 2000 : 10000;
+			delay = (instanceData["OS-EXT-STS:task_state"] !== null && instanceData["OS-EXT-STS:task_state"] !== '') ? 1000 : 5000;
 
 			// Hide other views
 			$('#error-view').addClass('hide');
@@ -184,7 +183,6 @@ var UI = (function () {
 			$('#instance-status > div > i').removeClass();
 			
 			if (displayableTask === 'deleting...') {
-				deleting = true;
 				$('#instance-status > div > i').addClass(statuses.DELETING.class);
 				$('#instance-status').css('background-color', statuses.DELETING.color);
 				$('#instance-status').addClass(statuses.DELETING.animation);
@@ -230,7 +228,7 @@ var UI = (function () {
 				return;
 			}
 
-			this.instanceDetails.deleteInstance(null, onError.bind(this));
+			this.instanceDetails.deleteInstance(undefined, onError.bind(this));
 		},
 
 		rebootInstance: function rebootInstance () {
@@ -240,7 +238,7 @@ var UI = (function () {
 				return;
 			}
 
-			this.instanceDetails.rebootInstance(null, onError.bind(this));
+			this.instanceDetails.rebootInstance(undefined, onError.bind(this));
 		},
 
 		refresh: function refresh () {
@@ -386,9 +384,8 @@ var UI = (function () {
 	onError = function onError (errorResponse) {
 
 		// Build default view if flag deleting is true and error is 404
-		if (errorResponse.message === '404 Error' && deleting) {
+		if (errorResponse.message === '404 Error') {
 			this.buildDefaultView();
-			deleting = false;
 		}
 		else {
 			error = true;

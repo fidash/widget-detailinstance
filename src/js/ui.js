@@ -9,6 +9,7 @@ var UI = (function () {
 	*****************************************************************/
 
 	var NONUSABLEWIDTH = 204;
+	var PROGRESSNONUSABLEWIDTH = 100;
 
 	// Colors
 	var RED = 'rgb(217, 83, 79)';
@@ -123,7 +124,7 @@ var UI = (function () {
 
 	var getInstanceDetailsSuccess, receiveInstanceId, onError, initEvents,
 		checkInstanceDetails, getDisplayableAddresses, refreshSuccess,
-		setNameMaxWidth;
+		setNameMaxWidth, setProgressBarWidth;
 
 	var delay, prevRefresh, error;
 
@@ -153,11 +154,11 @@ var UI = (function () {
 
 			var addresses = instanceData.addresses ? getDisplayableAddresses(instanceData.addresses) : '';
 			var power_state = (instanceData['OS-EXT-STS:power_state'] && instanceData['OS-EXT-STS:power_state'] !== "") ? power_states[instanceData["OS-EXT-STS:power_state"].toString()] : '';
-			var displayableTask = (instanceData["OS-EXT-STS:task_state"] && instanceData["OS-EXT-STS:task_state"] !== "") ? instanceData["OS-EXT-STS:task_state"] + '...' : "None";
+			var displayableTask = (instanceData["OS-EXT-STS:task_state"] && instanceData["OS-EXT-STS:task_state"] !== "") ? instanceData["OS-EXT-STS:task_state"] : "None";
 			var statusTooltip = 'Status: ' + instanceData.status + ', ' + 'Power State: ' + power_state + ', ' + 'VM State: ' + instanceData["OS-EXT-STS:vm_state"];
 
 			// Adjust refresh delay
-			delay = (instanceData["OS-EXT-STS:task_state"] !== null && instanceData["OS-EXT-STS:task_state"] !== '') ? 1000 : 5000;
+			delay = (instanceData["OS-EXT-STS:task_state"] !== null && instanceData["OS-EXT-STS:task_state"] !== '') ? 1000 : 3000;
 
 			// Hide other views
 			$('#error-view').addClass('hide');
@@ -166,7 +167,6 @@ var UI = (function () {
 
 			// Fields
 			$('#instance-name').text(instanceData.name);
-			$('#instance-name').attr('title', instanceData.name);
 			$('#instance-owner > span').text(instanceData.user_id);
 			$('#instance-id > span').text(instanceData.id);
 			$('#instance-image > span').text(instanceData.image.id);
@@ -175,14 +175,13 @@ var UI = (function () {
 			$('#instance-flavor > span').text(flavors[instanceData.flavor.id.toString()]);
 			$('#instance-created > span').text(instanceData.created);
 			$('#instance-updated > span').text(instanceData.updated);
-			$('#instance-task > span').text(displayableTask);
 
 			
-			// Status
+			// Status & Task
 			$('#instance-status').removeClass('working-animation');
 			$('#instance-status > div > i').removeClass();
 			
-			if (displayableTask === 'deleting...') {
+			if (displayableTask === 'deleting') {
 				$('#instance-status > div > i').addClass(statuses.DELETING.class);
 				$('#instance-status').css('background-color', statuses.DELETING.color);
 				$('#instance-status').addClass(statuses.DELETING.animation);
@@ -192,16 +191,35 @@ var UI = (function () {
 				$('#instance-status').css('background-color', statuses[instanceData.status].color);
 			}
 
+			if (displayableTask !== 'None') {
+				$('#instance-task > span').empty();
+				$('#progress-bar span').text(displayableTask);
+				$('#progress-bar').removeClass('hide');
+				$('#progress').css('background', statuses[instanceData.status].color);
+			}
+			else {
+				$('#instance-task > span').text(displayableTask);
+				$('#progress-bar').addClass('hide');
+			}
+
 			// Set name max-width
 			setNameMaxWidth(NONUSABLEWIDTH);
+
+			// Set progress bar width
+			setProgressBarWidth(PROGRESSNONUSABLEWIDTH);
 
 			// Fix tooltips
 			$('#instance-status').attr('title', statusTooltip);
 			$('#instance-status').attr('data-original-title', $('#instance-status').attr('title'));
 			$('#instance-status').attr('title', '');
 
+			$('#instance-name').attr('title', instanceData.name);
 			$('#instance-name').attr('data-original-title', $('#instance-name').attr('title'));
 			$('#instance-name').attr('title', '');
+
+			$('#progress-bar span').attr('title', instanceData["OS-EXT-STS:task_state"]);
+			$('#progress-bar span').attr('data-original-title', instanceData["OS-EXT-STS:task_state"]);
+			$('#progress-bar span').attr('title', '');
 
 			// Initialize tooltips
 			$('[data-toggle="tooltip"]').tooltip();
@@ -315,6 +333,23 @@ var UI = (function () {
 		}
 	};
 
+	setProgressBarWidth = function setProgressBarWidth (progressNonUsableWidth) {
+
+		var bodyWidth = $('body').attr('width') >= 360 ? $('body').attr('width') : 360;
+		var progressBarWidth = bodyWidth/2 - progressNonUsableWidth;
+		$('#progress-bar').css('width', progressBarWidth);
+
+		// Inner text
+		$('#progress-bar span').css('left', progressNonUsableWidth + progressBarWidth/2);
+
+		if (bodyWidth <= 360) {
+			$('#progress-bar span').css('max-width', 76);
+		}
+		else {
+			$('#progress-bar span').css('max-width', "None");
+		}
+	};
+
     initEvents = function initEvents () {
 
     	// Register callback for input endpoint
@@ -328,6 +363,9 @@ var UI = (function () {
 				$('body').attr('height', newValues.heightInPixels);
 				$('body').attr('width', newValues.widthInPixels);
 
+				// Set progress bar width
+				setProgressBarWidth(PROGRESSNONUSABLEWIDTH);
+
 				// Set name max-width
 				setNameMaxWidth(NONUSABLEWIDTH);
 			}
@@ -339,9 +377,11 @@ var UI = (function () {
 		}.bind(this));
 		$('#instance-reboot').click(function () {
 			this.rebootInstance.call(this);
+			this.refresh.call(this);
 		}.bind(this));
 		$('#instance-terminate').click(function () {
 			this.deleteInstance.call(this);
+			this.refresh.call(this);
 		}.bind(this));
 		$('#instance-image > span').click(function () {
 

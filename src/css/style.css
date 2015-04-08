@@ -129,3 +129,42 @@ h4 {
 	50%  { background-color: hsl(0, 0%, 50%); }
 	100% { background-color: hsl(0, 75%, 50%); }
 }
+
+#progress-bar {
+    width: 61%;
+    background-color: #eee;
+    border: 1px #000 solid;
+    clear: both;
+    display: inline-block;
+	vertical-align: top;
+	border-radius: 7px;
+}
+
+#progress-bar span {
+	z-index: 100;
+	position: absolute;
+	top: -1%;
+	transform: translateX(-81%);
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+#progress {
+    height: 15px;
+    width: 100%;
+    border-radius: 7px;
+}
+
+#pbaranim {
+    height: 15px;
+    width: 100%;
+    overflow: hidden;
+    text-align: center;
+    background: url('../images/7uo1osj.gif') repeat-x;
+    -moz-opacity: 0.25;
+    -khtml-opacity: 0.25;
+    opacity: 0.25;
+    -ms-filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=25);
+    filter: progid:DXImageTransform.Microsoft.Alpha(opacity=25);
+    filter: alpha(opacity=25);
+}

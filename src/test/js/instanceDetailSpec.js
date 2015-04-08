@@ -177,13 +177,13 @@ describe('Test instance details', function () {
             'id': instanceData.id,
             'owner': instanceData.user_id,
             'addresses': addr,
-            'task': displayableTask,
             'created': instanceData.created,
             'updated': instanceData.updated,
             'image': instanceData.image.id,
             'key-pair': instanceData.key_name,
             'flavor': instanceData.flavor.id
         };
+        var expectedTask = displayableTask;
         var instanceName = instanceData.name;
         var statusTitle = 'Status: ' + instanceData.status + ', ' + 'Power State: ' + power_state + ', ' + 'VM State: ' + instanceData["OS-EXT-STS:vm_state"];
 
@@ -195,6 +195,7 @@ describe('Test instance details', function () {
 
         expect($('#instance-name')).toContainText(instanceName);
         expect($('#instance-status').attr('data-original-title')).toEqual(statusTitle);
+        expect($('#progress-bar > span')).toContainText(expectedTask);
 	});
 
 	it('should change the height value after been given a new height', function () {
@@ -307,12 +308,12 @@ describe('Test instance details', function () {
 		instanceData["OS-EXT-STS:task_state"] = null;		
 		ui.buildDetailView(instanceData);
 
-		expect($('#instance-task > span')).toContainText('None');
+		expect($('#instance-task span')).toContainText('None');
 
 		instanceData["OS-EXT-STS:task_state"] = "";
 		ui.buildDetailView(instanceData);
 
-		expect($('#instance-task > span')).toContainText('None');		
+		expect($('#instance-task span')).toContainText('None');		
 	});
 
 	it('should call JSTACK.Nova.getserverdetail when a click event is triggered on the refresh button', function () {
@@ -397,7 +398,7 @@ describe('Test instance details', function () {
 		expect(setTimeoutSpy.calls.count()).toEqual(expectedCountTimeout);
 	});
 
-	it('should call getserverdetail 5 seconds after receiving the last update', function () {
+	it('should call getserverdetail 3 seconds after receiving the last update', function () {
 
         var expectedCount, callback;
         var instanceId = 'id';
@@ -410,7 +411,7 @@ describe('Test instance details', function () {
         callback();
 
         expect(JSTACK.Nova.getserverdetail.calls.count()).toEqual(expectedCount);
-        expect(setTimeoutSpy).toHaveBeenCalledWith(jasmine.any(Function), 5000);
+        expect(setTimeoutSpy).toHaveBeenCalledWith(jasmine.any(Function), 3000);
             
     });
 

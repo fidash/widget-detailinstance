@@ -139,6 +139,8 @@ var UI = (function () {
 		prevRefresh = false;
 		error = false;
 
+		$('body').attr('width', window.innerWidth);
+
 		initEvents.call(this);
 		this.buildDefaultView();
 	}

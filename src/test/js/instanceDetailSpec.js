@@ -429,4 +429,19 @@ describe('Test instance details', function () {
 
     	expect(setTimeoutSpy.calls.count()).toEqual(expectedCount);
     });
+
+    it('should have a name width of 156 and a progress bar width of 76 when' + 
+       ' the body size is less than 360', function () {
+
+       	var instanceId = 'id';
+
+    	$('body').attr('width', 100);
+    	receiveWiringEvent(instanceId);
+		getInstanceDetailsSuccess(defaultInstance);
+
+		expect($('#instance-name')).toHaveCss({'max-width': '156px'});
+		expect($('#progress-bar span')).toHaveCss({'max-width': '76px'});
+
+    });
+
 });

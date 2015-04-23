@@ -142,6 +142,7 @@ h4 {
     display: inline-block;
 	vertical-align: top;
 	border-radius: 7px;
+	cursor: default;
 }
 
 #progress-bar span {

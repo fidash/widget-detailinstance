@@ -11,10 +11,10 @@ describe('Test instance details', function () {
 
 	beforeEach(function () {
 
-		jasmine.getFixtures().fixturesPath = 'src/test/fixtures/html';
+		jasmine.getFixtures().fixturesPath = 'base/src/test/fixtures/html';
 		loadFixtures('defaultTemplate.html');
 
-		jasmine.getJSONFixtures().fixturesPath = 'src/test/fixtures/json';
+		jasmine.getJSONFixtures().fixturesPath = 'base/src/test/fixtures/json';
 		respServices = getJSONFixture('respServices.json');
 		defaultInstance = getJSONFixture('defaultInstance.json');
 		deletingInstance = getJSONFixture('deletingInstance.json');

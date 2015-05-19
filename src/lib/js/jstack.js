@@ -876,7 +876,7 @@ JSTACK.Nova = (function (JS, undefined) {
             var privateUrl = service.endpoints[0][params.endpointType];
             //TODO Let the user choose the URL so it is not hardcoded 
             //params.url = privateUrl.replace(/192.168.[0-9]+.[0-9]+/, "https://cloud.lab.fiware.org/Spain2/image/v1");
-            params.url = "https://cloud.lab.fiware.org/Spain2/compute/v2/" + JS.Keystone.params.access.token.tenant.id;
+            params.url = "https://cloud.lab.fiware.org/Spain2/compute/v2/" + JS.Keystone.params.access.project.id;
             return true;
         }
         return false;

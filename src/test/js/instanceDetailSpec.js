@@ -25,9 +25,11 @@ describe('Test instance details', function () {
 	function receiveWiringEvent (instanceId) {
 		
 		var access = respServices.access;
+		var token = 'gavrtshdrthrtyj';
 		var wiringData = {
 			'id': instanceId,
-			'access': access
+			'access': access,
+			'token': token
 		};
 
 		wiringData = JSON.stringify(wiringData);

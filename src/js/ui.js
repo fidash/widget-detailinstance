@@ -441,7 +441,7 @@ var UI = (function () {
 		wiringData = JSON.parse(wiringData);
 
 		JSTACK.Keystone.params.access = wiringData.access;
-		JSTACK.Keystone.params.token = wiringData.access.token.id;
+		JSTACK.Keystone.params.token = wiringData.token;
 		JSTACK.Keystone.params.currentstate = 2;
 
 		this.instanceDetails = new InstanceDetails(wiringData.id);

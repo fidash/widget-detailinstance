@@ -440,6 +440,8 @@ var UI = (function () {
 	receiveInstanceId = function receiveInstanceId (wiringData) {
 		wiringData = JSON.parse(wiringData);
 
+		var region = wiringData.region;
+
 		JSTACK.Keystone.params.access = wiringData.access;
 		JSTACK.Keystone.params.token = wiringData.token;
 		JSTACK.Keystone.params.currentstate = 2;
@@ -449,10 +451,10 @@ var UI = (function () {
 
 		if (!prevRefresh) {
 			prevRefresh = true;
-			this.instanceDetails.getInstanceDetails(getInstanceDetailsSuccess.bind(this), onError.bind(this));	
+			this.instanceDetails.getInstanceDetails(getInstanceDetailsSuccess.bind(this), onError.bind(this), region);	
 		}
 		else {
-			this.instanceDetails.getInstanceDetails(refreshSuccess.bind(this), onError.bind(this));
+			this.instanceDetails.getInstanceDetails(refreshSuccess.bind(this), onError.bind(this), region);
 		}
 		
 	};

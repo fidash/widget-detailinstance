@@ -2,7 +2,7 @@ var InstanceDetails = (function (JSTACK) {
 	"use strict";
 
 	/*****************************************************************
-	*************************CONSTRUCTOR******************************
+	*                     C O N S T R U C T O R                      *
 	*****************************************************************/	
 
 	function InstanceDetails (instanceId) {
@@ -11,21 +11,21 @@ var InstanceDetails = (function (JSTACK) {
 
 
 	/*****************************************************************
-	*****************************PUBLIC*******************************
+	*                          P U B L I C                           *
 	*****************************************************************/
 
 	InstanceDetails.prototype = {
-		getInstanceDetails: function getInstanceDetails (callback, onError) {
+		getInstanceDetails: function getInstanceDetails (callback, onError, region) {
 
-			JSTACK.Nova.getserverdetail(this.instanceId, callback, onError);
+			JSTACK.Nova.getserverdetail(this.instanceId, callback, onError, region);
 		},
 
-		deleteInstance: function deleteInstance (callback, onError) {
-			JSTACK.Nova.deleteserver(this.instanceId, callback, onError);
+		deleteInstance: function deleteInstance (callback, onError, region) {
+			JSTACK.Nova.deleteserver(this.instanceId, callback, onError, region);
 		},
 
-		rebootInstance : function rebootInstance (callback, onError) {
-			JSTACK.Nova.rebootserversoft(this.instanceId, callback, onError);
+		rebootInstance : function rebootInstance (callback, onError, region) {
+			JSTACK.Nova.rebootserversoft(this.instanceId, callback, onError, region);
 		}
 	};
 

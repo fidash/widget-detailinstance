@@ -1,36 +1,43 @@
-h3 {
+h4 {
+	margin-right: 5px;
 	margin-top: 13px;
-	display: inline-block;
-	margin-left: 4px;
-	margin-right: 10px;
+	margin-bottom: 8px;
 	overflow: hidden;
-    white-space: nowrap;
     text-overflow: ellipsis;
-    width: 170px;
+    white-space: nowrap;
+    max-width: 129px;
     display: inline-block;
+    vertical-align: bottom;
 }
 
 .hide {
 	display: none;
 }
 
+.btn {
+	padding: 3px 6px;
+}
+
 .clickable {
 	cursor: pointer;
 }
 
-.header-buttons {
-	margin: 10px 10px;
+.navbar-brand {
+	height: 32px;
+	padding: 15px 11px;
+	float: none;
+	vertical-align: top;
 }
 
 .btn-default {
 	margin-right: 5px;
-	margin-top: 10px;
+	margin-top: 7px;
 	margin-left: 10px;
 }
 
 .btn-primary {
-	margin-top: 10px;
-	margin-right: 15px;
+	margin-top: 7px;
+	margin-right: 10px;
 }
 
 .stripes {
@@ -59,7 +66,7 @@ h3 {
 	top: 50%;
 	left: 50%;
 	line-height: 1.5;
-	font-size: x-large;
+	font-size: larger;
 	text-align: center;
 	position: absolute;
 	transform: translate(-50%, -50%);
@@ -73,7 +80,7 @@ h3 {
 	top: 50%;
 	left: 50%;
 	line-height: 1.5;
-	font-size: x-large;
+	font-size: larger;
 	text-align: center;
 	position: absolute;
 	transform: translate(-50%, -50%);
@@ -82,19 +89,39 @@ h3 {
 }
 
 .status {
-	border-radius: 13px;
-	width: 37px;
-	position: fixed;
-	height: 37px;
-	margin-top: 8px;
+	padding: 3px;
+	border-radius: 5px;
+	cursor: default;
+	display: inline-block;
+}
+
+.status > div {
+	position: relative;
+	width: 20px;
+	height: 20px;
 	text-align: center;
 }
 
-#instance-status > i {
-	margin-top: 7px;
-	cursor: default;
+.working-animation {
+	-moz-animation: blink 2s infinite;
+	-webkit-animation: blink 2s infinite;
+	animation: blink 2s infinite;
 }
 
-.fa-2x {
-	font-size: 22px;
+@keyframes blink {
+	0%   { background-color: hsl(0, 75%, 50%); }
+	50%  { background-color: hsl(0, 0%, 50%); }
+	100% { background-color: hsl(0, 75%, 50%); }
+}
+
+@-webkit-keyframes blink {
+	0%   { background-color: hsl(0, 75%, 50%); }
+	50%  { background-color: hsl(0, 0%, 50%); }
+	100% { background-color: hsl(0, 75%, 50%); }
+}
+
+@-moz-keyframes blink {
+	0%   { background-color: hsl(0, 75%, 50%); }
+	50%  { background-color: hsl(0, 0%, 50%); }
+	100% { background-color: hsl(0, 75%, 50%); }
 }

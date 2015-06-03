@@ -315,7 +315,7 @@ describe('Test instance details', function () {
 		expect($('#instance-task > span')).toContainText('None');		
 	});
 
-	it('should call JSTACK.Nova.getinstancedetails when a click event is triggered on the refresh button', function () {
+	it('should call JSTACK.Nova.getserverdetail when a click event is triggered on the refresh button', function () {
 
 		var instanceId = 'id';
 		var eventSpy = spyOnEvent('#refresh-button', 'click');
@@ -397,7 +397,7 @@ describe('Test instance details', function () {
 		expect(setTimeoutSpy.calls.count()).toEqual(expectedCountTimeout);
 	});
 
-	it('should call getserverlist 2 seconds after receiving the last update', function () {
+	it('should call getserverdetail 10 seconds after receiving the last update', function () {
 
         var expectedCount, callback;
         var instanceId = 'id';
@@ -406,7 +406,7 @@ describe('Test instance details', function () {
         receiveWiringEvent(instanceId);
         expectedCount = JSTACK.Nova.getserverdetail.calls.count() + 1;
 		getInstanceDetailsSuccess(defaultInstance);
-        callback = setTimeout.calls.mostRecent().args[0];
+        callback = setTimeoutSpy.calls.mostRecent().args[0];
         callback();
 
         expect(JSTACK.Nova.getserverdetail.calls.count()).toEqual(expectedCount);

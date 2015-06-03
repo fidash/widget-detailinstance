@@ -18,85 +18,86 @@ var UI = (function () {
 
 		// GREEN
 		'ACTIVE': {
-			'class': 'glyphicon glyphicon-ok fa-2x fa-inverse',
+			'class': 'glyphicon glyphicon-ok  fa-inverse',
 			'color': GREEN
 		},
 		'BUILDING': {
-			'class': 'fa fa-spinner fa-pulse fa-2x fa-inverse',
+			'class': 'fa fa-spinner fa-pulse  fa-inverse',
 			'color': GREEN
 		},
 		'PASSWORD': {
-			'class': 'fa fa-terminal fa-2x fa-inverse',
+			'class': 'fa fa-terminal  fa-inverse',
 			'color': GREEN
 		},
 
 		// AMBAR
 		'HARD_REBOOT': {
-			'class': 'fa fa-repeat fa-spin fa-2x fa-inverse',
+			'class': 'fa fa-repeat fa-spin  fa-inverse',
 			'color': AMBAR
 		},
 		'PAUSED': {
-			'class': 'fa fa-pause fa-2x fa-inverse',
+			'class': 'fa fa-pause  fa-inverse',
 			'color': AMBAR
 		},
 		'REBOOT': {
-			'class': 'fa fa-repeat fa-spin fa-2x fa-inverse',
+			'class': 'fa fa-repeat fa-spin  fa-inverse',
 			'color': AMBAR
 		},
 		'BUILD': {
-			'class': 'fa fa-repeat fa-spin fa-2x fa-inverse',
+			'class': 'fa fa-repeat fa-spin  fa-inverse',
 			'color': AMBAR
 		},
 		'RESCUED': {
-			'class': 'fa fa-life-ring fa-2x fa-inverse',
+			'class': 'fa fa-life-ring  fa-inverse',
 			'color': AMBAR
 		},
 		'RESIZED': {
-			'class': 'fa fa-arrows-alt fa-2x fa-inverse',
+			'class': 'fa fa-arrows-alt  fa-inverse',
 			'color': AMBAR
 		},
 		'VERIFY_RESIZE': {
-			'class': 'fa fa-arrows-alt fa-2x fa-inverse',
+			'class': 'fa fa-arrows-alt  fa-inverse',
 			'color': AMBAR
 		},
 		'SHUTOFF': {
-			'class': 'fa fa-stop fa-2x fa-inverse',
+			'class': 'fa fa-stop  fa-inverse',
 			'color': AMBAR
 		},
 		'SOFT_DELETED': {
-			'class': 'fa fa-trash fa-2x fa-inverse',
+			'class': 'fa fa-trash  fa-inverse',
 			'color': AMBAR
 		},
 		'STOPPED': {
-			'class': 'fa fa-stop fa-2x fa-inverse',
+			'class': 'fa fa-stop  fa-inverse',
 			'color': AMBAR
 		},
 		'SUSPENDED': {
-			'class': 'fa fa-pause fa-2x fa-inverse',
+			'class': 'fa fa-pause  fa-inverse',
 			'color': AMBAR
 		},
 
 		// GRAY
 		'UNKNOWN': {
-			'class': 'fa fa-question fa-2x fa-inverse',
+			'class': 'fa fa-question  fa-inverse',
 			'color': GRAY
 		},
 
 		// RED
 		'DELETED': {
-			'class': 'fa fa-trash fa-2x fa-inverse',
+			'class': 'fa fa-trash  fa-inverse',
 			'color': RED
 		},
 		'ERROR': {
-			'class': 'fa fa-times fa-2x fa-inverse',
+			'class': 'fa fa-times  fa-inverse',
 			'color': RED
 		},
 		'DELETING': {
-			'class': 'fa fa-repeat fa-spin fa-2x fa-inverse',
-			'color': RED
+			'class': 'fa fa-trash fa-inverse',
+			'color': RED,
+			'animation': 'working-animation'
 		},
 		'REVERT_RESIZE': {
-			'class': 'fa fa-arrows-alt fa-2x fa-inverse',
+			'class': 'fa fa-arrows-alt  fa-inverse',
 			'color': RED
 		}
 	};
@@ -173,17 +174,23 @@ var UI = (function () {
 			$('#instance-updated > span').text(instanceData.updated);
 			$('#instance-task > span').text(displayableTask);
 
+			
 			// Status
-			$('#instance-status > i').removeClass();
-			$('#instance-status > i').addClass(statuses[instanceData.status].class);
-			$('#instance-status').attr('title', statusTooltip).css('background-color', statuses[instanceData.status].color);
-
+			$('#instance-status').removeClass('working-animation');
+			$('#instance-status > div > i').removeClass();
+			
 			if (displayableTask === 'deleting...') {
 				deleting = true;
-				$('#instance-status > i').addClass(statuses.DELETING.class);
+				$('#instance-status > div > i').addClass(statuses.DELETING.class);
 				$('#instance-status').css('background-color', statuses.DELETING.color);
+				$('#instance-status').addClass(statuses.DELETING.animation);
 			}
+			else {
+				$('#instance-status > div > i').addClass(statuses[instanceData.status].class);
+				$('#instance-status').css('background-color', statuses[instanceData.status].color);
+			}			
 
+			$('#instance-status').attr('title', statusTooltip);
 			$('#instance-status').attr('data-original-title', $('#instance-status').attr('title'));
 			$('#instance-status').attr('title', '');
 

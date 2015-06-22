@@ -1,7 +1,9 @@
-/* global UI */
+/* global InstanceDetails */
 
 window.addEventListener('DOMContentLoaded', function () {
 	"use strict";
 
-	var ui = new UI();
+	var instanceDetails = new InstanceDetails();
+	instanceDetails.init();
+
 }, false);

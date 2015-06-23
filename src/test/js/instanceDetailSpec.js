@@ -88,7 +88,7 @@ describe('Instance Details', function () {
 		expect(JSTACK.Nova.rebootserversoft).toHaveBeenCalled();
 	});
 
-	it('should build the default view after receiving a 404 error', function () {
+	it('should build the default view after deleting an instance', function () {
 
 		var instanceId = 'id';
         var deleteCallback;
@@ -100,6 +100,7 @@ describe('Instance Details', function () {
         deleteCallback();
 
         expect(buildDefaultViewSpy).toHaveBeenCalled();
+        expect(instanceDetails.error).toBe(true);
 	});
 
 	it('should call buildDetailView after successfully getting an instance\'s details', function () {

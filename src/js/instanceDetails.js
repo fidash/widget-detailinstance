@@ -21,7 +21,7 @@ var InstanceDetails = (function (JSTACK) {
     *****************************************************************/
 
     function hasReceivedInstance () {
-        return this.instanceId && this.region ? true : false;
+        return this.instanceId && this.region;
     }
 
     function drawDetails (autoRefresh, instanceData) {
@@ -69,7 +69,7 @@ var InstanceDetails = (function (JSTACK) {
         this.instanceId = wiringData.id;
         this.region = wiringData.region;
         this.error = false;
-        this.getInstanceDetails.call(this, this.firstRefresh);
+        this.getInstanceDetails(this.firstRefresh);
         this.firstRefresh = false;
         
     }

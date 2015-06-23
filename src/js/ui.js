@@ -154,6 +154,10 @@ var UI = (function () {
         $('#detail-view').addClass('hide');
         $('body').removeClass('stripes angled-135');
 
+        if (viewId === 'default-view' || viewId === 'error-view') {
+            $('body').addClass('stripes angled-135');
+        }
+
         // Show view
         $('#' + viewId).removeClass('hide');
     }

@@ -258,13 +258,16 @@ var UI = (function () {
         // Init click events
         $('#refresh-button').click(function () {
             callbacks.refresh();
-        }.bind(this));
+        });
+        
         $('#instance-reboot').click(function () {
             callbacks.reboot();
-        }.bind(this));
+        });
+        
         $('#instance-terminate').click(function () {
             callbacks.delete();
-        }.bind(this));
+        });
+        
         $('#instance-image > span').click(function () {
 
             var id = $(this).text();

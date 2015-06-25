@@ -281,6 +281,8 @@ var UI = (function () {
 
         $('body').attr('width', window.innerWidth);
 
+        UI.buildDefaultView();
+
     }
 
     function buildDetailView (instanceData) {

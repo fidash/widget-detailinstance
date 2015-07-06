@@ -1,7 +1,7 @@
 {
   "name": "OpenStack-InstanceDetails",
   "homepage": "https://repo.conwet.fi.upm.es/wirecloud/OpenStack-InstanceDetails-Widget.git",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "vendor": "CoNWeT",
   "author": "CoNWeT Lab., Universidad Politecnica de Madrid",
   "description": "A prototype widget for an openstack dashboard.",

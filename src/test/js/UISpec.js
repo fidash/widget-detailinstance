@@ -271,4 +271,12 @@ describe('User Interface', function () {
 		expect($('#error-view')).toContainText('500 Error');
 	});
 
+	it('should call buildDefaultView in UI.init', function () {
+        var buildDefaultViewSpy = spyOn(UI, 'buildDefaultView');
+
+        UI.init();
+
+        expect(buildDefaultViewSpy).toHaveBeenCalled();
+    });
+
 });

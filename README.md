@@ -7,8 +7,15 @@ The widget displays all the attributes of an OpenStack Instance available to the
 
 ## Wiring endpoints
 
-The Detail Instance widget has the following wiring endpoints:
+The Detail Instance widget has the following wiring input endpoints:
 
 |Label|Name|Friendcode|Type|Description|
 |:--:|:--:|:--:|:--:|:--:|
 |Instance ID|instance_id|instance_id|text|Receives instance ID and OpenStack service token.|
+
+
+And the following output endpoints:
+
+|Label|Name|Friendcode|Type|Description|
+|:--:|:--:|:--:|:--:|:--:|
+|Image ID|image_id|image_id|text|Sends an image ID and OpenStack service token.|

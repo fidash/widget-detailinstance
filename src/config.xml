@@ -5,7 +5,7 @@
     <email>bgrana@conwet.com</email>
     <image>images/catalogue.png</image>
     <smartphoneimage>images/catalogueSmartphone.png</smartphoneimage>
-    <description>Shows details of the given openstack instance</description>
+    <description>FIDASH widget that shows details of the given openstack instance</description>
     <authors>bgrana</authors>
   </details>
   <requirements>

@@ -107,9 +107,9 @@ var UI = (function () {
     };
 
     var flavors = {
-        '1': '1 VCPU | 512MB RAM | 0GB Disk',
-        '2': '1 VCPU | 2048MB RAM | 10GB Disk',
-        '3': '2 VCPU | 2MB RAM | 20GB Disk'
+        '1': '1 VCPU | 512 MiB RAM | 0 GiB Disk',
+        '2': '1 VCPU | 2048 MiB RAM | 10 GiB Disk',
+        '3': '2 VCPU | 2 MiB RAM | 20 GiB Disk'
     };
 
 

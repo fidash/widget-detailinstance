@@ -191,6 +191,8 @@ var UI = (function () {
         var addresses = instanceData.addresses ? Utils.getDisplayableAddresses(instanceData.addresses) : '';
         var power_state = Utils.getDisplayablePowerState(instanceData['OS-EXT-STS:power_state']);
         var displayableTask = (instanceData["OS-EXT-STS:task_state"] && instanceData["OS-EXT-STS:task_state"] !== "") ? instanceData["OS-EXT-STS:task_state"] : "None";
+        var displayableCreated = Utils.formatDate(instanceData.created);
+        var displayableUpdated = Utils.formatDate(instanceData.updated);
 
         // Fields
         $('#instance-name').text(instanceData.name);
@@ -200,8 +202,8 @@ var UI = (function () {
         $('#instance-key-pair > span').text(instanceData.key_name);
         $('#instance-addresses > span').text(addresses);
         $('#instance-flavor > span').text(flavors[instanceData.flavor.id.toString()]);
-        $('#instance-created > span').text(instanceData.created);
-        $('#instance-updated > span').text(instanceData.updated);
+        $('#instance-created > span').text(displayableCreated);
+        $('#instance-updated > span').text(displayableUpdated);
 
         
         // Remove previous status

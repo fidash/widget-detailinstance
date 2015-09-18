@@ -40,9 +40,15 @@ var Utils = (function () {
         return (powerState && powerState !== "") ? POWER_STATES[powerState.toString()] : '';
     }
 
+    function formatDate (dateString) {
+        var date = new Date(dateString);
+        return date.toUTCString();
+    }
+
     return {
         getDisplayableAddresses: getDisplayableAddresses,
-        getDisplayablePowerState: getDisplayablePowerState
+        getDisplayablePowerState: getDisplayablePowerState,
+        formatDate: formatDate
     };
 
 })();

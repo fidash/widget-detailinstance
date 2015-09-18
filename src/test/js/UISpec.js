@@ -194,8 +194,8 @@ describe('User Interface', function () {
             'id': instanceData.id,
             'owner': instanceData.user_id,
             'addresses': addr,
-            'created': instanceData.created,
-            'updated': instanceData.updated,
+            'created': (new Date(instanceData.created)).toUTCString(),
+            'updated': (new Date(instanceData.updated)).toUTCString(),
             'image': instanceData.image.id,
             'key-pair': instanceData.key_name,
             'flavor': instanceData.flavor.id

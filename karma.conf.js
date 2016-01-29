@@ -11,7 +11,6 @@ module.exports = function(config) {
         files: [
             // PhantomJS polyfill for bind function
             'node_modules/phantomjs-polyfill/bind-polyfill.js',
-            'node_modules/babel-polyfill/dist/polyfill.min.js',
 
             // Vendor files
             'src/test/vendor/*.js',
@@ -19,7 +18,7 @@ module.exports = function(config) {
             'node_modules/jasmine-utils/src/jasmine-utils.js',
             'node_modules/bootstrap/dist/js/bootstrap.min.js',
             'node_modules/jasmine-jquery/lib/jasmine-jquery.js',
-            'src/lib/js/OStackAuth.js',
+
 
             // Helper files
             'src/test/helpers/*.js',
@@ -43,24 +42,8 @@ module.exports = function(config) {
         ],
 
         preprocessors: {
-            'src/js/**/*.js': ['coverage'],
-            'src/lib/js/OStackAuth.js': ['babel']
+            'src/js/**/*.js': ['coverage']
         },
-
-
-        babelPreprocessor: {
-            options: {
-                presets: ['es2015'],
-                sourceMap: 'inline'
-            },
-            filename: function (file) {
-                return file.originalPath.replace(/\.js$/, '.es5.js');
-            },
-            sourceFileName: function (file) {
-                return file.originalPath;
-            }
-        },
-
 
         exclude: [
             'src/js/main.js'

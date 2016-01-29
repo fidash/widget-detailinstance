@@ -4,7 +4,7 @@ var InstanceDetails = (function (JSTACK) {
     "use strict";
 
     /*****************************************************************
-    *                     C O N S T R U C T O R                      *
+     *                     C O N S T R U C T O R                      *
     *****************************************************************/
 
     function InstanceDetails () {
@@ -73,13 +73,6 @@ var InstanceDetails = (function (JSTACK) {
 
     }
 
-    function authError (error) {
-        error = error.error;
-        onError({message: error.code + " " + error.title, body: error.message, region: "IDM"});
-        this.authenticate();
-    }
-
-
     /*****************************************************************
     *                          P U B L I C                           *
     *****************************************************************/
@@ -100,31 +93,31 @@ var InstanceDetails = (function (JSTACK) {
         },
 
         authenticate: function () {
-            OStackAuth.getTokenAndParams(OStackAuth.CLOUD_URL)
-                .then(function (params) {
-                    var token = params.token;
-                    var response = params.response;
-                    var responseBody = JSON.parse(response.responseText);
-                    // Temporal change to fix catalog name
-                    responseBody.token.serviceCatalog = responseBody.token.catalog;
-                    // Mimic JSTACK.Keystone.authenticate behavior on success
-                    JSTACK.Keystone.params.token = token;
-                    JSTACK.Keystone.params.access = responseBody.token;
-                    JSTACK.Keystone.params.currentstate = 2;
-                    // MORE
-                    if (this.hasReceivedInstance()) {
-                        this.getInstanceDetails(this.firstRefresh);
-                    }
-                }.bind(this))
-                .catch(function(error) {
-                    authError.call(this, {
-                        error: {
-                            code: error.status,
-                            title: "Error",
-                            message: error.statusText
-                        }
-                    });
-                }.bind(this));
+            JSTACK.Keystone.init("https://cloud.lab.fiware.org");
+
+            MashupPlatform.wiring.registerCallback("authentication", function(paramsraw) {
+                var params = JSON.parse(paramsraw);
+                var token = params.token;
+                var responseBody = params.body;
+
+                if (token === this.token) {
+                    // same token, ignore
+                    return;
+                }
+
+                // Mimic JSTACK.Keystone.authenticate behavior on success
+                JSTACK.Keystone.params.token = token;
+                JSTACK.Keystone.params.access = responseBody.token;
+                JSTACK.Keystone.params.currentstate = 2;
+
+                this.token = token;
+                this.body = responseBody;
+
+                // extra
+                if (hasReceivedInstance.call(this)) {
+                    this.getInstanceDetails(this.firstRefresh);
+                }
+            }.bind(this));
         },
 
         getInstanceDetails: function (autoRefresh) {

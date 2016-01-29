@@ -1,89 +1,107 @@
- module.exports = function(config) {
+module.exports = function(config) {
     "use strict";
 
     config.set({
-      frameworks: ['jasmine', 'fixture'],
-    
-      singleRun: true,
+        frameworks: ['jasmine', 'fixture'],
 
-      browsers: ['Firefox', 'Chrome'],
+        singleRun: true,
 
-      files: [
-        // PhantomJS polyfill for bind function
-        'node_modules/phantomjs-polyfill/bind-polyfill.js',
+        browsers: ['Firefox', 'Chrome'],
 
-        // Vendor files
-        'src/test/vendor/*.js',
-        'node_modules/jquery/dist/jquery.js',
-        'node_modules/jasmine-utils/src/jasmine-utils.js',
-        'node_modules/bootstrap/dist/js/bootstrap.min.js',
-        'node_modules/jasmine-jquery/lib/jasmine-jquery.js',
+        files: [
+            // PhantomJS polyfill for bind function
+            'node_modules/phantomjs-polyfill/bind-polyfill.js',
+            'node_modules/babel-polyfill/dist/polyfill.min.js',
 
-        // Helper files
-        'src/test/helpers/*.js',
+            // Vendor files
+            'src/test/vendor/*.js',
+            'node_modules/jquery/dist/jquery.js',
+            'node_modules/jasmine-utils/src/jasmine-utils.js',
+            'node_modules/bootstrap/dist/js/bootstrap.min.js',
+            'node_modules/jasmine-jquery/lib/jasmine-jquery.js',
+            'src/lib/js/OStackAuth.js',
 
-        // Fixtures
-        { pattern: 'src/test/fixtures/html/defaultTemplate.html',
-          watched: true,
-          served:  true,
-          included: false },
+            // Helper files
+            'src/test/helpers/*.js',
 
-        { pattern: 'src/test/fixtures/json/*.json',
-          watched: true,
-          served:  true,
-          included: false },
+            // Fixtures
+            { pattern: 'src/test/fixtures/html/defaultTemplate.html',
+              watched: true,
+              served:  true,
+              included: false },
 
-        // Source code
-        'src/js/*.js',
+            { pattern: 'src/test/fixtures/json/*.json',
+              watched: true,
+              served:  true,
+              included: false },
 
-        // Spec files
-        'src/test/js/*Spec.js'
-      ],
+            // Source code
+            'src/js/*.js',
 
-      preprocessors: {
-        'src/js/**/*.js': ['coverage']
-      },
+            // Spec files
+            'src/test/js/*Spec.js'
+        ],
 
-      exclude: [
-        'src/js/main.js'
-      ],
+        preprocessors: {
+            'src/js/**/*.js': ['coverage'],
+            'src/lib/js/OStackAuth.js': ['babel']
+        },
 
-      plugins: [
-        'karma-jasmine',
-        'karma-firefox-launcher',
-        'karma-chrome-launcher',
-        'karma-phantomjs-launcher',
-        'karma-fixture',
-        'karma-junit-reporter',
-        'karma-coverage'
-      ],
 
-      reporters: ['progress', 'junit', 'coverage'],
-      junitReporter: {
-        outputDir: 'build/test-reports'
-      },
+        babelPreprocessor: {
+            options: {
+                presets: ['es2015'],
+                sourceMap: 'inline'
+            },
+            filename: function (file) {
+                return file.originalPath.replace(/\.js$/, '.es5.js');
+            },
+            sourceFileName: function (file) {
+                return file.originalPath;
+            }
+        },
 
-      coverageReporter: {
-        reporters: [ 
-          {
-            type : 'html',
-            dir : 'build/coverage/',
-            subdir: 'html'
-          },
-          {
-            type: 'cobertura',
-            dir: 'build/coverage',
-            subdir: 'xml'
-          },
-          {
-            type: 'json',
-            dir: 'build/coverage',
-            subdir: 'json'
-          },
-          {
-            type: 'text-summary'
-          }
-        ]
-      }
+
+        exclude: [
+            'src/js/main.js'
+        ],
+
+        // plugins: [
+        //     'karma-jasmine',
+        //     'karma-firefox-launcher',
+        //     'karma-chrome-launcher',
+        //     'karma-phantomjs-launcher',
+        //     'karma-fixture',
+        //     'karma-junit-reporter',
+        //     'karma-coverage'
+        // ],
+
+        reporters: ['progress', 'junit', 'coverage'],
+        junitReporter: {
+            outputDir: 'build/test-reports'
+        },
+
+        coverageReporter: {
+            reporters: [
+                {
+                    type : 'html',
+                    dir : 'build/coverage/',
+                    subdir: 'html'
+                },
+                {
+                    type: 'cobertura',
+                    dir: 'build/coverage',
+                    subdir: 'xml'
+                },
+                {
+                    type: 'json',
+                    dir: 'build/coverage',
+                    subdir: 'json'
+                },
+                {
+                    type: 'text-summary'
+                }
+            ]
+        }
     });
-  };
+};

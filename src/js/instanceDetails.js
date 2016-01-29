@@ -1,4 +1,4 @@
-/* global UI */
+/* global UI,OStackAuth */
 
 var InstanceDetails = (function (JSTACK) {
     "use strict";
@@ -37,7 +37,6 @@ var InstanceDetails = (function (JSTACK) {
                 this.getInstanceDetails(drawDetails.bind(this, true), onError.bind(this));
             }.bind(this), this.delay);
         }
-
     }
 
     function resetInterface () {
@@ -56,22 +55,28 @@ var InstanceDetails = (function (JSTACK) {
             UI.buildErrorView(errorResponse);
             MashupPlatform.widget.log('Error: ' + JSON.stringify(errorResponse));
         }
-        
+
     }
 
     function receiveInstanceId (wiringData) {
         wiringData = JSON.parse(wiringData);
 
-        JSTACK.Keystone.params.access = wiringData.access;
-        JSTACK.Keystone.params.token = wiringData.token;
-        JSTACK.Keystone.params.currentstate = 2;
+        // JSTACK.Keystone.params.access = wiringData.access;
+        // JSTACK.Keystone.params.token = wiringData.token;
+        // JSTACK.Keystone.params.currentstate = 2;
 
         this.instanceId = wiringData.id;
         this.region = wiringData.region;
         this.error = false;
         this.getInstanceDetails(this.firstRefresh);
         this.firstRefresh = false;
-        
+
+    }
+
+    function authError (error) {
+        error = error.error;
+        onError({message: error.code + " " + error.title, body: error.message, region: "IDM"});
+        this.authenticate();
     }
 
 
@@ -92,6 +97,34 @@ var InstanceDetails = (function (JSTACK) {
             MashupPlatform.wiring.registerCallback('instance_id', receiveInstanceId.bind(this));
 
             UI.init(callbacks);
+        },
+
+        authenticate: function () {
+            OStackAuth.getTokenAndParams(OStackAuth.CLOUD_URL)
+                .then(function (params) {
+                    var token = params.token;
+                    var response = params.response;
+                    var responseBody = JSON.parse(response.responseText);
+                    // Temporal change to fix catalog name
+                    responseBody.token.serviceCatalog = responseBody.token.catalog;
+                    // Mimic JSTACK.Keystone.authenticate behavior on success
+                    JSTACK.Keystone.params.token = token;
+                    JSTACK.Keystone.params.access = responseBody.token;
+                    JSTACK.Keystone.params.currentstate = 2;
+                    // MORE
+                    this.error = false;
+                    this.getInstanceDetails(this.firstRefresh);
+                    this.firstRefresh = false;
+                }.bind(this))
+                .catch(function(error) {
+                    authError.call(this, {
+                        error: {
+                            code: error.status,
+                            title: "Error",
+                            message: error.statusText
+                        }
+                    });
+                }.bind(this));
         },
 
         getInstanceDetails: function (autoRefresh) {

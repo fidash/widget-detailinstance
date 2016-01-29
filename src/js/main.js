@@ -1,9 +1,9 @@
 /* global InstanceDetails */
 
 window.addEventListener('DOMContentLoaded', function () {
-	"use strict";
+    "use strict";
 
-	var instanceDetails = new InstanceDetails();
-	instanceDetails.init();
-
+    var instanceDetails = new InstanceDetails();
+    instanceDetails.init();
+    instanceDetails.authenticate();
 }, false);

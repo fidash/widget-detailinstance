@@ -112,9 +112,9 @@ var InstanceDetails = (function (JSTACK) {
                     JSTACK.Keystone.params.access = responseBody.token;
                     JSTACK.Keystone.params.currentstate = 2;
                     // MORE
-                    this.error = false;
-                    this.getInstanceDetails(this.firstRefresh);
-                    this.firstRefresh = false;
+                    if (this.hasReceivedInstance()) {
+                        this.getInstanceDetails(this.firstRefresh);
+                    }
                 }.bind(this))
                 .catch(function(error) {
                     authError.call(this, {

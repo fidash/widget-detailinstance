@@ -13,6 +13,7 @@ The Detail Instance widget has the following wiring input endpoints:
 
 |Label|Name|Friendcode|Type|Description|
 |:--:|:--:|:--:|:--:|:--|
+|Authentication|authentication|openstack-auth|text|Receive the authentication data via wiring.|
 |Instance ID|instance_id|instance_id|text|Receives instance ID and OpenStack service token.|
 
 

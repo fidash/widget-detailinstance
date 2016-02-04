@@ -1,7 +1,7 @@
 {
     "name": "DetailInstance",
     "homepage": "https://github.com/fidash/widget-instancedetails",
-    "version": "0.6.7",
+    "version": "0.7.0",
     "vendor": "UPM-ETSIINF",
     "author": "CoNWeT Lab., Universidad Politecnica de Madrid",
     "description": "A prototype widget for an openstack dashboard.",
